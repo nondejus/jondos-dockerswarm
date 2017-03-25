@@ -1,0 +1,31 @@
+version: '2'
+
+services:
+  
+    redmine:
+        image: redmine
+        ports:
+          - 3000:3000
+        environment:
+          REDMINE_DB_MYSQL: mysql
+          REDMINE_DB_PASSWORD: 100%Jondos
+        depends_on:
+          - mysql
+        volumes:
+          - /home/docker/redmine-configuration.yml:/usr/src/redmine/config/configuration.yml
+          - /home/docker/redmine-files:/usr/src/redmine/files
+        restart: always
+
+    kimai:
+        image: kimai
+        ports:
+          - 8080:80
+        depends_on:
+          - mysql
+        restart: always
+
+    mysql:
+        image: mysql
+        restart: always
+        volumes:
+          - /home/docker/mysql:/var/lib/mysql
