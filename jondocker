@@ -1,0 +1,59 @@
+#!/bin/bash
+
+if [ "$1" = "--install" ] ; then
+  install -v -m 755 $0 /usr/local/bin
+  exit 0
+fi
+
+cd $HOME
+
+PARAMS=""
+VOLUMES=""
+IMAGE=""
+
+function map {
+  map_from=$1
+  shift
+  test "$1" = "to" && shift
+  mkdir -p map_from
+  map_to=$1
+  VOLUMES="$VOLUMES -v $map_from:$map_to"
+}
+
+function prepareImage {
+  IMGNAME=$1
+  shift
+
+  docker images | grep $IMGNAME && return
+
+  if [ -d $IMGNAME ] ; then
+    docker build -t $IMGNAME $@ $IMGNAME || exit 1
+  else
+    docker pull $IMGNAME || exit 1
+  fi
+}
+
+function depends {
+  test "$1" = "on" && shift
+  CONTNAME=$1
+  docker ps | grep $CONTNAME || ./run-$CONTNAME.sh
+}
+
+function params {
+  PARAMS=$@
+}
+
+function image {
+  IMAGE=$1
+}
+
+CONTNAME=$(basename $1)
+CONTNAME=${CONTNAME%.*}
+
+IMAGE=$CONTNAME
+
+. $1
+
+prepareImage $IMAGE
+
+docker start $CONTNAME || docker run -d --name $CONTNAME $VOLUMES $PARAMS $IMAGE

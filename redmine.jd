@@ -1,0 +1,4 @@
+#!/usr/local/bin/jondocker
+map $HOME/redmine-files to /usr/src/redmine/files
+depends on mysql
+params -p 3000:3000 --link mysql -e REDMINE_DB_MYSQL=mysql -e REDMINE_DB_PASSWORD=100%Jondos
