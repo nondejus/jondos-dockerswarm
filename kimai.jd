@@ -1,4 +1,4 @@
 #!/usr/local/bin/jondocker
 # start script for redmine when docker-compose is not available
 depends on mysql
-params -p 8080:80 --link mysql
+params -p 8080:80

@@ -18,25 +18,24 @@ function map {
   mkdir -p map_from
   map_to=$1
   VOLUMES="$VOLUMES -v $map_from:$map_to"
+  echo VOLUME: $map_from:$map_to
 }
 
 function prepareImage {
   IMGNAME=$1
   shift
 
-  docker images | grep $IMGNAME && return
-
   if [ -d $IMGNAME ] ; then
     docker build -t $IMGNAME $@ $IMGNAME || exit 1
   else
-    docker pull $IMGNAME || exit 1
+    docker images | grep -q $IMGNAME || { docker pull $IMGNAME || exit 1 ; }
   fi
 }
 
 function depends {
   test "$1" = "on" && shift
-  CONTNAME=$1
-  docker ps | grep $CONTNAME || ./run-$CONTNAME.sh
+  CONTAINER=$1
+  docker ps | grep $CONTAINER || { echo Depending on $CONTAINER ; ./$CONTAINER.jd ; }
 }
 
 function params {

@@ -1,3 +1,4 @@
 #!/usr/local/bin/jondocker
 map $HOME/mysql to /var/lib/mysql
 image mysql/mysql-server
+params -p 3306:3306
