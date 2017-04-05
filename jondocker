@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ "$1" = "--install" ] ; then
-  install -v -m 755 $0 /usr/local/bin
+  install -D -v -m 755 $0 /usr/local/bin/$(basename $0)
   exit 0
 fi
 
