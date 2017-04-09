@@ -1,4 +1,4 @@
 #!/usr/local/bin/jondocker
 map nagios-files/nagios3 to /etc/nagios3
 map nagios-files/nagios-plugins to /etc/nagios-plugins
-params -p 8090:80
+params -p 8090:80 -p 5667:5667
