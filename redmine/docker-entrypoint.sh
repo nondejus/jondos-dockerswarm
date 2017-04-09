@@ -19,6 +19,7 @@ file_env() {
 	elif [ "${!fileVar:-}" ]; then
 		val="$(< "${!fileVar}")"
 	fi
+	echo "$var"="$val"
 	export "$var"="$val"
 	unset "$fileVar"
 }
