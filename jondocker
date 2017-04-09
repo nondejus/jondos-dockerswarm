@@ -5,8 +5,6 @@ if [ "$1" = "--install" ] ; then
   exit 0
 fi
 
-cd $HOME
-
 PARAMS=""
 VOLUMES=""
 IMAGE=""
@@ -36,6 +34,12 @@ function depends {
   test "$1" = "on" && shift
   CONTAINER=$1
   docker ps | grep $CONTAINER || { echo Depending on $CONTAINER ; ./$CONTAINER.jd ; }
+  PARAMS="$PARAMS --link $CONTAINER"
+}
+
+function port {
+  echo PORT: $1
+  PARAMS="$PARAMS -p $1"
 }
 
 function params {

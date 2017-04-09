@@ -1,4 +1,4 @@
 #!/usr/local/bin/jondocker
 
 depends on mysql
-params -p 8080:80
+params -p 9001:9001

@@ -1,4 +1,4 @@
 #!/usr/local/bin/jondocker
 
-map jenkins-files to /var/jenkins_home
+map $HOME/jenkins-files to /var/jenkins_home
 params -p 9090:8080 -p 50000:50000
