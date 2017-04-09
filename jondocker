@@ -15,7 +15,7 @@ function map {
   map_from=$1
   shift
   test "$1" = "to" && shift
-  mkdir -p map_from
+  mkdir -p $map_from
   map_to=$1
   VOLUMES="$VOLUMES -v $map_from:$map_to"
   echo VOLUME: $map_from:$map_to
