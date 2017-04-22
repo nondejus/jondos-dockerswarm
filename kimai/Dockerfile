@@ -24,4 +24,4 @@ RUN rm -rf /var/www/html/installer
 
 EXPOSE 80
 
-CMD [ "/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf" ]
+CMD [ "/usr/bin/supervisord", "--configuration", "/etc/supervisor/supervisord.conf", "--nodaemon" ]
