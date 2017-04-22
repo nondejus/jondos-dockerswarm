@@ -1,0 +1,17 @@
+#!/usr/local/bin/jondocker
+
+image tvial/docker-mailserver
+
+map $HOME/mail-files/data to /var/mail
+map $HOME/mail-files/state to /var/mail-state
+map $HOME/mail-files/config to /tmp/docker-mailserver
+map /etc/letsencrypt to /etc/letsencrypt
+
+params -e ENABLE_SPAMASSASIN=1 -e ENABLE_CLAMAV=1 -e ENABLE_FAIL2BAN=0 -e ONE_DIR=1 -e ENABLE_LDAP=0 -e OVERRIDE_HOSTNAME=mail2.jondos.de -e ENABLE_SASLAUTHD=1 -e SSL_TYPE=letsencrypt -e ENABLE_POP3=1 -e DMS_DEBUG=1
+
+#port 25:25
+port 143:143
+port 587:587
+port 993:993
+
+test -x $HOME/mail-files/setup-mail.sh || wget -q -O $HOME/mail-files/setup-mail.sh https://raw.githubusercontent.com/tomav/docker-mailserver/master/setup.sh && chmod a+x $HOME/mail-files/setup-mail.sh
