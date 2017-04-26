@@ -7,11 +7,15 @@ map $HOME/mail-files/state to /var/mail-state
 map $HOME/mail-files/config to /tmp/docker-mailserver
 map /etc/letsencrypt to /etc/letsencrypt
 
-params -e ENABLE_SPAMASSASIN=1 -e ENABLE_CLAMAV=1 -e ENABLE_FAIL2BAN=0 -e ONE_DIR=1 -e ENABLE_LDAP=0 -e OVERRIDE_HOSTNAME=mail2.jondos.de -e ENABLE_SASLAUTHD=1 -e SSL_TYPE=letsencrypt -e ENABLE_POP3=1 -e DMS_DEBUG=1
+params -e ENABLE_SPAMASSASSIN=1 -e ENABLE_CLAMAV=1 -e ENABLE_FAIL2BAN=0 -e ONE_DIR=1 -e ENABLE_LDAP=0 -e OVERRIDE_HOSTNAME=mail.jondos.de -e ENABLE_SASLAUTHD=0 -e SSL_TYPE=letsencrypt -e ENABLE_POP3=1 -e DMS_DEBUG=1 -h mail.jondos.de
 
-#port 25:25
+port 25:25
 port 143:143
 port 587:587
 port 993:993
 
 test -x $HOME/mail-files/setup-mail.sh || wget -q -O $HOME/mail-files/setup-mail.sh https://raw.githubusercontent.com/tomav/docker-mailserver/master/setup.sh && chmod a+x $HOME/mail-files/setup-mail.sh
+
+POST_STARTUP="for i in \$(ls $HOME/mail-files/data/jondos.de) ; do docker exec mail useradd \$i ; done"
+
+echo $POST_STARTUP
