@@ -9,13 +9,37 @@ map /etc/letsencrypt to /etc/letsencrypt
 
 params -e ENABLE_SPAMASSASSIN=1 -e ENABLE_CLAMAV=1 -e ENABLE_FAIL2BAN=0 -e ONE_DIR=1 -e ENABLE_LDAP=0 -e OVERRIDE_HOSTNAME=mail.jondos.de -e ENABLE_SASLAUTHD=0 -e SSL_TYPE=letsencrypt -e ENABLE_POP3=1 -e DMS_DEBUG=1 -h mail.jondos.de
 
-port 25:25
+port 172.31.24.151:25:25
 port 143:143
+port 465:465
+port 10465:465
 port 587:587
+port 10587:587
 port 993:993
+port 995:995
 
 test -x $HOME/mail-files/setup-mail.sh || wget -q -O $HOME/mail-files/setup-mail.sh https://raw.githubusercontent.com/tomav/docker-mailserver/master/setup.sh && chmod a+x $HOME/mail-files/setup-mail.sh
 
-POST_STARTUP="for i in \$(ls $HOME/mail-files/data/jondos.de) ; do docker exec mail useradd \$i ; done"
+function post_startup {
+	for i in $(ls $HOME/mail-files/data/jondos.de) ; do 
+		echo Setting up mail user $i 
+		docker exec mail useradd $i 
+	done
+	docker exec mail postconf \
+		smtpd_tls_security_level=encrypt \
+		smtp_tls_security_level=encrypt \
+		alias_database=hash:/etc/aliases \
+		alias_maps=hash:/etc/aliases \
+		strict_mailbox_ownership=no \
+		"mydestination=\$myhostname localhost 35.158.68.69"
+	docker exec mail postconf -P \
+		127.0.0.1:10025/inet/smtpd_tls_security_level=none \
+		smtp-amavis/unix/smtpd_tls_security_level=none
 
-echo $POST_STARTUP
+	docker cp mail:/etc/postfix/master.cf /tmp/master.cf
+	grep ^smtp.*inet /tmp/master.cf | sed -e s/smtp/smtps/ > /tmp/master.cf_
+	cat /tmp/master.cf_ >> /tmp/master.cf
+	docker cp /tmp/master.cf mail:/etc/postfix/master.cf
+
+}
+

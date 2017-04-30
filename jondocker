@@ -60,3 +60,5 @@ IMAGE=$CONTNAME
 prepareImage $IMAGE
 
 docker start $CONTNAME || docker run -d --name $CONTNAME $VOLUMES $PARAMS $IMAGE
+
+post_startup
