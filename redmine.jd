@@ -1,4 +1,14 @@
 #!/usr/local/bin/jondocker
 map $HOME/redmine-files to /usr/src/redmine/files
 depends on mysql
-params -p 3000:3000 --link mysql -e REDMINE_DB_MYSQL=mysql -e REDMINE_DB_ENCODING=utf8 -e REDMINE_DB_PASSWORD=100%Jondos
+port 3000:3000
+
+params --link mysql -e REDMINE_DB_MYSQL=mysql -e REDMINE_DB_ENCODING=utf8 -e REDMINE_DB_PASSWORD=100%Jondos
+
+function post_startup {
+
+  crontab -l 2>/dev/null | grep -v redmine2kimai.sh >/tmp/crontab
+  echo "0 * * * *    sudo /home/ubuntu/jondos-dockerswarm/redmine/redmine2kimai.sh > /dev/null 2>&1" > /tmp/crontab
+  crontab /tmp/crontab && rm /tmp/crontab
+
+}
