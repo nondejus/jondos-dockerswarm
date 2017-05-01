@@ -1,4 +1,5 @@
 #!/usr/local/bin/jondocker
 map $HOME/nagios-files/nagios3 to /etc/nagios3
 map $HOME/nagios-files/nagios-plugins to /etc/nagios-plugins
-params -p 8090:80 -p 5667:5667
+port 8090:80
+port 5667:5667
