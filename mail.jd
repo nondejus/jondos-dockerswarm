@@ -9,7 +9,7 @@ map /etc/letsencrypt to /etc/letsencrypt
 
 params -e ENABLE_SPAMASSASSIN=1 -e ENABLE_CLAMAV=1 -e ENABLE_FAIL2BAN=0 -e ONE_DIR=1 -e ENABLE_LDAP=0 -e OVERRIDE_HOSTNAME=mail.jondos.de -e ENABLE_SASLAUTHD=0 -e SSL_TYPE=letsencrypt -e ENABLE_POP3=1 -e DMS_DEBUG=1 -h mail.jondos.de
 
-port 172.31.24.151:25:25
+port 78.129.167.102:25:25
 port 143:143
 port 465:465
 port 10465:465
@@ -34,7 +34,7 @@ function post_startup {
 		alias_database=hash:/etc/aliases \
 		alias_maps=hash:/etc/aliases \
 		strict_mailbox_ownership=no \
-		"mydestination=\$myhostname localhost 35.158.68.69"
+		"mydestination=\$myhostname localhost 78.129.167.102"
 
 	# exempt comm with amavis from encryption
 	docker exec mail postconf -P \
