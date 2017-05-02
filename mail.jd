@@ -29,11 +29,12 @@ function post_startup {
 
 	# 1. enforce encryption 2. replace texthash by hash 3. set our IP as mydestination
 	docker exec mail postconf \
-		smtpd_tls_security_level=encrypt \
 		smtp_tls_security_level=encrypt \
 		alias_database=hash:/etc/aliases \
 		alias_maps=hash:/etc/aliases \
 		strict_mailbox_ownership=no \
+		smtpd_tls_auth_only=yes \
+		smtpd_recipient_restrictions=permit_mynetworks,permit_sasl_authenticated,reject_unauth_destination \
 		"mydestination=\$myhostname localhost 78.129.167.102"
 
 	# exempt comm with amavis from encryption
@@ -51,6 +52,7 @@ function post_startup {
   -o smtpd_sasl_auth_enable=yes
   -o smtpd_client_restrictions=permit_sasl_authenticated,reject
   -o content_filter=smtp-amavis:[127.0.0.1]:10024
+  -o milter_macro_daemon_name=ORIGINATING
 EOF
 	docker cp /tmp/master.cf mail:/etc/postfix/master.cf
 
