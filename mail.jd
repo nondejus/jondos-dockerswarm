@@ -29,7 +29,7 @@ function post_startup {
 
 	# 1. enforce encryption 2. replace texthash by hash 3. set our IP as mydestination
 	docker exec mail postconf \
-		smtp_tls_security_level=encrypt \
+		smtp_tls_security_level=may \
 		alias_database=hash:/etc/aliases \
 		alias_maps=hash:/etc/aliases \
 		strict_mailbox_ownership=no \
@@ -55,6 +55,8 @@ function post_startup {
   -o milter_macro_daemon_name=ORIGINATING
 EOF
 	docker cp /tmp/master.cf mail:/etc/postfix/master.cf
-
+	
+	echo "\$undecipherable_subject_tag = undef;" > /tmp/70-unchecked 
+	docker cp /tmp/70-unchecked mail:/etc/amavis/conf.d
 }
 

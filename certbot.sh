@@ -3,7 +3,7 @@
 case $1 in
   --init)
       service nginx stop
-      certbot-auto certonly --standalone $(certbot-domains.conf)
+      certbot-auto certonly --standalone $(cat certbot-domains.conf)
       service nginx start
       ;;
   --renew

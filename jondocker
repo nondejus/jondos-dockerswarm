@@ -8,6 +8,11 @@ fi
 PARAMS=""
 VOLUMES=""
 IMAGE=""
+ENTRYPOINT=""
+
+function entrypoint {
+  ENTRYPOINT=$1
+}
 
 function map {
   map_from=$1
@@ -61,7 +66,7 @@ prepareImage $IMAGE
 
 if [ -f nginx/$CONTNAME.conf ] ; then
   ln -sf nginx/$CONTNAME.conf /etc/nginx/sites-enabled/
-  CONTAINERHOSTNAME=$(grep server_name nginx/$CONTNAME.conf)
+  CONTAINERHOSTNAME=$(grep [^$]server_name nginx/$CONTNAME.conf)
   CONTAINERHOSTNAME=${CONTAINERHOSTNAME##* }
   CONTAINERHOSTNAME=${CONTAINERHOSTNAME%;*}
   [[ "$PARAMS" == *"-h"* ]] || PARAMS="$PARAMS -h $CONTAINERHOSTNAME"
@@ -70,6 +75,6 @@ if [ -f nginx/$CONTNAME.conf ] ; then
   echo "* Please check SSL certificates" 
 fi
 
-docker start $CONTNAME || docker run -d --name $CONTNAME $VOLUMES $PARAMS $IMAGE
+docker start $CONTNAME || docker run -d --name $CONTNAME $VOLUMES $PARAMS $IMAGE $ENTRYPOINT
 
 test "$(type -t post_startup)" = "function" && post_startup
