@@ -1,4 +1,24 @@
-# Konzept für Jondos-Dockerserver
+# Skripte und Konfigurationsdateien für eine Docker-basierte Infrastruktur für JonDos GmbH
+
+## Komponenten
+
+### jondocker
+
+Das Script "jondocker" bietet eine domänenspezifische Sprache (DSL) zur Definition von Docker-basierten Diensten bzw. Servern.
+
+Um jondocker zu installieren, muss das Script einmalig mit Administratorrechten und dem Parameter "--install" ausgeführt werden:
+
+  sudo jondocker --install
+
+#### jondocker-Scripts
+
+Ein JonDocker-Script sollte einen Namen mit der Endung .jd haben, das ist aber nicht zwingend erforderlich.
+
+Die "Shebang"-Zeile am Anfang der Datei muss
+
+#### Syntax
+
+* 
 
 ----
 
