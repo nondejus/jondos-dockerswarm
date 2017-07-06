@@ -1,0 +1,10 @@
+service xvncserver
+{
+  disable = no
+  protocol = tcp
+  socket_type = stream
+  wait = no
+  user = nobody
+  server = /usr/bin/Xvnc
+  server_args = -inetd -query localhost -once -geometry selected_geometry -depth selected_depth securitytypes=none
+}

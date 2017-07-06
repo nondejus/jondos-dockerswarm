@@ -1,0 +1,4 @@
+#!/usr/local/bin/jondocker
+
+port 5950:5900
+map /home to /home
