@@ -1,6 +1,9 @@
-#!/user/local/bin/jondocker
+#!/usr/local/bin/jondocker
 
 map /etc/letsencrypt to /etc/letsencrypt
+map /var/jondobrowser /var/www/torupdates/htdocs/jondobrowser
+
+params -h updates.anonymous-proxy-servers.net
 
 port 443:443
 port 80:80
