@@ -1,0 +1,6 @@
+#!/user/local/bin/jondocker
+
+map /etc/letsencrypt to /etc/letsencrypt
+
+port 443:443
+port 80:80
