@@ -3,7 +3,7 @@ map $HOME/redmine-files to /usr/src/redmine/files
 depends on mysql
 port 3000:3000
 
-params --link mysql -e REDMINE_DB_MYSQL=mysql -e REDMINE_DB_ENCODING=utf8 -e REDMINE_DB_PASSWORD=100%Jondos
+params -e REDMINE_DB_MYSQL=mysql -e REDMINE_DB_ENCODING=utf8 -e REDMINE_DB_PASSWORD=100%Jondos
 
 function post_startup {
 
