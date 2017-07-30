@@ -21,6 +21,7 @@ COPY service.conf /etc/supervisor/conf.d/service.conf
 RUN chown -R www-data.www-data /var/www/html
 RUN chmod -R a+w /var/www/html/temporary /var/www/html/includes/
 RUN rm -rf /var/www/html/installer
+RUN ln -s /var/www/html/temporary/logfile.txt /var/log/kimai.log
 
 EXPOSE 80
 

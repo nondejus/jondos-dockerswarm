@@ -9,9 +9,14 @@ PARAMS=""
 VOLUMES=""
 IMAGE=""
 ENTRYPOINT=""
+CONTAINERPARAMS=""
 
 function entrypoint {
   ENTRYPOINT=$1
+}
+
+function container_params {
+  CONTAINERPARAMS="$CONTAINERPARAMS $*"
 }
 
 function map {
@@ -75,6 +80,11 @@ if [ -f nginx/$CONTNAME.conf ] ; then
   echo "* Please check SSL certificates" 
 fi
 
-docker start $CONTNAME || docker run -d --name $CONTNAME $VOLUMES $PARAMS $IMAGE $ENTRYPOINT
+if docker ps -a | grep $CONTNAME
+then
+  docker start $CONTNAME 
+else 
+  docker run -d --name $CONTNAME $VOLUMES $PARAMS $IMAGE $ENTRYPOINT $CONTAINERPARAM
+fi
 
 test "$(type -t post_startup)" = "function" && post_startup
