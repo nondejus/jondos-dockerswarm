@@ -53,7 +53,7 @@ function port {
 }
 
 function params {
-  PARAMS=$@
+  PARAMS="$PARAMS $@"
 }
 
 function image {
@@ -84,6 +84,7 @@ if docker ps -a | grep $CONTNAME
 then
   docker start $CONTNAME 
 else 
+  echo docker run -d --name $CONTNAME $VOLUMES $PARAMS $IMAGE $ENTRYPOINT $CONTAINERPARAMS
   docker run -d --name $CONTNAME $VOLUMES $PARAMS $IMAGE $ENTRYPOINT $CONTAINERPARAMS
 fi
 

@@ -2,7 +2,9 @@
 
 image jordan/icinga2
 
+port 7000:80
+
 map $HOME/icinga2_files/conf to /etc/icinga2
 map $HOME/icinga2_files/db to /var/lib/mysql
 
-params -e ICINGAWEB2_PASSWORD="oFjk$M7 8nYnG,D8" -e ICINGAWEB2_ADMIN_USER=nagiosadmin
+params -e ICINGAWEB2_ADMIN_PASS=oFjk§M78nYnG,D8 -e ICINGAWEB2_ADMIN_USER=nagiosadmin

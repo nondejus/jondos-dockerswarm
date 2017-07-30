@@ -9,4 +9,4 @@ map $HOME/portainer_files to /endpoints
 
 echo '[ { "Name": "Güldenstern", "URL": "tcp://78.129.167.102:2375" }, { "Name": "Rosenkranz",  "URL": "unix:///var/run/docker.sock" } ]' > $HOME/portainer_files/endpoints.json
 
-container_params --external-endpoints /endpoints/endpoints.json --no-auth --logo "https://anonymous-proxy-servers.net/images/jondo220.png"
+container_params --external-endpoints /endpoints/endpoints.json --logo "https://anonymous-proxy-servers.net/images/jondo220.png"
