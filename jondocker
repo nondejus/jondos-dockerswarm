@@ -84,7 +84,7 @@ if docker ps -a | grep $CONTNAME
 then
   docker start $CONTNAME 
 else 
-  docker run -d --name $CONTNAME $VOLUMES $PARAMS $IMAGE $ENTRYPOINT $CONTAINERPARAM
+  docker run -d --name $CONTNAME $VOLUMES $PARAMS $IMAGE $ENTRYPOINT $CONTAINERPARAMS
 fi
 
 test "$(type -t post_startup)" = "function" && post_startup
