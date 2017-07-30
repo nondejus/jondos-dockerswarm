@@ -1,0 +1,8 @@
+#!/usr/local/bin/jondocker
+
+image jordan/icinga2
+
+map $HOME/icinga2_files/conf to /etc/icinga2
+map $HOME/icinga2_files/db to /var/lib/mysql
+
+params -e ICINGAWEB2_PASSWORD="oFjk$M7 8nYnG,D8" -e ICINGAWEB2_ADMIN_USER=nagiosadmin
