@@ -1,7 +1,5 @@
 #!/usr/local/bin/jondocker
 
-image ipcheck
-
 params -h ip-check.info
 
 port 78.129.167.168:21:21
@@ -9,5 +7,7 @@ port 78.129.167.168:80:80
 port 78.129.167.168:443:443
 port 78.129.167.165:80:80
 port 78.129.167.165:443:443
+
+map /etc/letsencrypt to /etc/letsencrypt
 
 entrypoint /sbin/init
