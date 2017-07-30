@@ -70,7 +70,7 @@ IMAGE=$CONTNAME
 prepareImage $IMAGE
 
 if [ -f nginx/$CONTNAME.conf ] ; then
-  ln -sf nginx/$CONTNAME.conf /etc/nginx/sites-enabled/
+  ln -sf $PWD/nginx/$CONTNAME.conf /etc/nginx/sites-enabled/
   CONTAINERHOSTNAME=$(grep [^$]server_name nginx/$CONTNAME.conf)
   CONTAINERHOSTNAME=${CONTAINERHOSTNAME##* }
   CONTAINERHOSTNAME=${CONTAINERHOSTNAME%;*}
