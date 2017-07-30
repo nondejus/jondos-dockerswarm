@@ -2,5 +2,6 @@
 
 image portainer/portainer
 
-port 9000:9000 
-map /var/run/docker.sock:/var/run/docker.sock 
+port 9000:9000
+map /var/run/docker.sock to /var/run/docker.sock 
+
