@@ -53,7 +53,7 @@ function port {
 }
 
 function params {
-  PARAMS=$@
+  PARAMS="$PARAMS $@"
 }
 
 function image {
@@ -70,7 +70,7 @@ IMAGE=$CONTNAME
 prepareImage $IMAGE
 
 if [ -f nginx/$CONTNAME.conf ] ; then
-  ln -sf nginx/$CONTNAME.conf /etc/nginx/sites-enabled/
+  ln -sf $PWD/nginx/$CONTNAME.conf /etc/nginx/sites-enabled/
   CONTAINERHOSTNAME=$(grep [^$]server_name nginx/$CONTNAME.conf)
   CONTAINERHOSTNAME=${CONTAINERHOSTNAME##* }
   CONTAINERHOSTNAME=${CONTAINERHOSTNAME%;*}
@@ -84,6 +84,7 @@ if docker ps -a | grep $CONTNAME
 then
   docker start $CONTNAME 
 else 
+  echo docker run -d --name $CONTNAME $VOLUMES $PARAMS $IMAGE $ENTRYPOINT $CONTAINERPARAMS
   docker run -d --name $CONTNAME $VOLUMES $PARAMS $IMAGE $ENTRYPOINT $CONTAINERPARAMS
 fi
 
