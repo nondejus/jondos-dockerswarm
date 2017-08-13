@@ -7,4 +7,4 @@ port 5665:5665
 
 map $HOME/icinga2_files/conf to /etc/icinga2
 map $HOME/icinga2_files/db to /var/lib/mysql
-
+map $HOME/icinga2_files/ssl to /etc/apache2/ssl
