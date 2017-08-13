@@ -4,6 +4,9 @@ image shop
 
 params -h shop.anonymous-proxy-servers.net
 
+map /var/tmp to /var/tmp
+map /etc/letsencrypt /etc/letsencrypt
+
 port 78.129.167.5:80:80
 port 78.129.167.5:443:443
 
