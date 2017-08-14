@@ -23,6 +23,4 @@ port 5665:5665
 
 function post_startup {
     sudo iptables -I INPUT -p tcp -s 35.158.68.69 --dport 5665 -j ACCEPT
-    docker exec -ti icinga2sat icinga2 node wizard
-    docker exec icinga2sat service icinga2 restart
 }

@@ -22,21 +22,29 @@ RUN apt-get update && apt-get install -y wget supervisor apt-utils \
 
 COPY icinga-supervisor.conf /etc/supervisor/conf.d 
 
-RUN mkdir -p /etc/icinga2/pki && \
-    chmod -R a+rw /etc/icinga2/pki && \
+RUN cd /etc/icinga2/pki && \
     icinga2 pki new-cert --cn $HOSTNAME \
-      --key /etc/icinga2/pki/$HOSTNAME.key \
-      --cert /etc/icinga2/pki/$HOSTNAME.crt && \
+      --key $HOSTNAME.key \
+      --cert $HOSTNAME.crt && \
     icinga2 pki save-cert \
-      --key /etc/icinga2/pki/$HOSTNAME.key \
-      --cert /etc/icinga2/pki/$HOSTNAME.crt \
-      --trustedcert /etc/icinga2/pki/$MASTER.crt \
+      --key $HOSTNAME.key \
+      --cert $HOSTNAME.crt \
+      --trustedcert $MASTER.crt \
+      --host $MASTER && \
+    icinga2 pki request \
+      --ticket $TICKET \
+      --key $HOSTNAME.key \
+      --cert $HOSTNAME.crt \
+      --ca ca.crt \
+      --port 5665 \
+      --trustedcert $MASTER.crt \
       --host $MASTER                                  
 
-RUN icinga2 node setup \
+RUN cd /etc/icinga2/pki && \
+    icinga2 node setup \
     --cn $HOSTNAME \
     --ticket $TICKET \
-    --trustedcert /etc/icinga2/pki/$MASTER.crt \
+    --trustedcert $MASTER.crt \
     --endpoint $MASTER \
     --zone $HOSTNAME \
     --master_host $MASTER \
