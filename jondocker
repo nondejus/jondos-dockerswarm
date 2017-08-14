@@ -72,7 +72,10 @@ CONTNAME=${CONTNAME%.*}
 
 IMAGE=$CONTNAME
 
-. $1
+SCRIPT=$1
+shift
+
+. $SCRIPT
 
 prepareImage $IMAGE $BUILDPARAMS
 

@@ -1,4 +1,4 @@
-FROM ubuntu
+FROM debian:jessie
 
 ARG TICKET
 ARG HOSTNAME
@@ -6,13 +6,20 @@ ARG HOSTNAME
 ENV DEBIAN_FRONTEND noninteractive
 ENV MASTER monitor.anonymous-proxy-servers.net
 
-VOLUME /etc/icinga2
+RUN apt-get update && apt-get install -y wget supervisor apt-utils \
+     && wget --quiet -O - https://packages.icinga.org/icinga.key | apt-key add - \
+     && echo "deb http://packages.icinga.org/debian icinga-jessie main" > /etc/apt/sources.list.d/icinga2.list \
+     && apt-get update \
+     && apt-get install -y --no-install-recommends \
+          icinga2 \
+          icingacli \
+          monitoring-plugins \
+          nagios-nrpe-plugin \
+          nagios-snmp-plugins \
+          nagios-plugins-contrib \
+     && apt-get clean \
+     && rm -rf /var/lib/apt/lists/*
 
-RUN apt-get update && apt-get install -y wget apt-utils supervisor && \
-    wget -O - http://packages.icinga.org/icinga.key | apt-key add - && \
-    echo 'deb http://packages.icinga.org/ubuntu icinga-xenial main' > /etc/apt/sources.list.d/icinga-main-xenial.list && \
-    apt-get update && apt-get install -y icinga2
-    
 COPY icinga-supervisor.conf /etc/supervisor/conf.d 
 
 RUN mkdir -p /etc/icinga2/pki && \

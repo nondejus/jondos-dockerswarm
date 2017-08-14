@@ -15,8 +15,6 @@ export TICKET=$2
 test -z "$HOSTNAME" && usage && exit 1
 test -z "$TICKET"   && usage && exit 1
 
-map $HOME/icinga2sat_files/conf to /etc/icinga2
-
 build_params TICKET=$TICKET HOSTNAME=$HOSTNAME
 
 params -h $HOSTNAME
@@ -25,7 +23,6 @@ port 5665:5665
 
 function post_startup {
     sudo iptables -I INPUT -p tcp -s 35.158.68.69 --dport 5665 -j ACCEPT
-
     docker exec -ti icinga2sat icinga2 node wizard
     docker exec icinga2sat service icinga2 restart
 }
