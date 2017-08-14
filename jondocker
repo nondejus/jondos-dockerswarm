@@ -10,6 +10,7 @@ VOLUMES=""
 IMAGE=""
 ENTRYPOINT=""
 CONTAINERPARAMS=""
+BUILDPARAMS=""
 
 function entrypoint {
   ENTRYPOINT=$1
@@ -17,6 +18,12 @@ function entrypoint {
 
 function container_params {
   CONTAINERPARAMS="$CONTAINERPARAMS $*"
+}
+
+function build_params {
+  for i in "$@" ; do
+    BUILDPARAMS="$BUILDPARAMS --build-arg $i"
+  done
 }
 
 function map {
@@ -67,7 +74,7 @@ IMAGE=$CONTNAME
 
 . $1
 
-prepareImage $IMAGE
+prepareImage $IMAGE $BUILDPARAMS
 
 if [ -f nginx/$CONTNAME.conf ] ; then
   ln -sf $PWD/nginx/$CONTNAME.conf /etc/nginx/sites-enabled/

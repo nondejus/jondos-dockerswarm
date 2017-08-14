@@ -1,8 +1,25 @@
 #!/usr/local/bin/jondocker
 
+function usage {
+    echo "Usage:"
+    echo "$0 HOSTNAME TICKET"
+    echo
+    echo "HOSTNAME       The host name of the icinga2 satellite to be built"
+    echo "TICKET         The connection ticket generated on the icinga2 master"
+    echo "               (see Icinga2 documentation for details)"
+}
+
+export HOSTNAME=$1
+export TICKET=$2
+
+test -z "$HOSTNAME" && usage && exit 1
+test -z "$TICKET"   && usage && exit 1
+
 map $HOME/icinga2sat_files/conf to /etc/icinga2
 
-params -h guildenstern
+build_params TICKET=$TICKET HOSTNAME=$HOSTNAME
+
+params -h $HOSTNAME
 
 port 5665:5665
 
@@ -10,4 +27,5 @@ function post_startup {
     sudo iptables -I INPUT -p tcp -s 35.158.68.69 --dport 5665 -j ACCEPT
 
     docker exec -ti icinga2sat icinga2 node wizard
+    docker exec icinga2sat service icinga2 restart
 }
