@@ -10,6 +10,7 @@ VOLUMES=""
 IMAGE=""
 ENTRYPOINT=""
 CONTAINERPARAMS=""
+BUILDPARAMS=""
 
 function entrypoint {
   ENTRYPOINT=$1
@@ -17,6 +18,12 @@ function entrypoint {
 
 function container_params {
   CONTAINERPARAMS="$CONTAINERPARAMS $*"
+}
+
+function build_params {
+  for i in "$@" ; do
+    BUILDPARAMS="$BUILDPARAMS --build-arg $i"
+  done
 }
 
 function map {
@@ -65,9 +72,12 @@ CONTNAME=${CONTNAME%.*}
 
 IMAGE=$CONTNAME
 
-. $1
+SCRIPT=$1
+shift
 
-prepareImage $IMAGE
+. $SCRIPT
+
+prepareImage $IMAGE $BUILDPARAMS
 
 if [ -f nginx/$CONTNAME.conf ] ; then
   ln -sf $PWD/nginx/$CONTNAME.conf /etc/nginx/sites-enabled/
@@ -75,7 +85,7 @@ if [ -f nginx/$CONTNAME.conf ] ; then
   CONTAINERHOSTNAME=${CONTAINERHOSTNAME##* }
   CONTAINERHOSTNAME=${CONTAINERHOSTNAME%;*}
   [[ "$PARAMS" == *"-h"* ]] || PARAMS="$PARAMS -h $CONTAINERHOSTNAME"
-  echo "-d $CONTAINERHOSTNAME" >> certbot-domains.conf
+  grep -q $CONTAINERHOSTNAME certbot-domains.conf || echo "-d $CONTAINERHOSTNAME" >> certbot-domains.conf
   echo "* Please restart/reload nginx"
   echo "* Please check SSL certificates" 
 fi
