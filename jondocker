@@ -85,7 +85,7 @@ if [ -f nginx/$CONTNAME.conf ] ; then
   CONTAINERHOSTNAME=${CONTAINERHOSTNAME##* }
   CONTAINERHOSTNAME=${CONTAINERHOSTNAME%;*}
   [[ "$PARAMS" == *"-h"* ]] || PARAMS="$PARAMS -h $CONTAINERHOSTNAME"
-  echo "-d $CONTAINERHOSTNAME" >> certbot-domains.conf
+  grep -q $CONTAINERHOSTNAME certbot-domains.conf || echo "-d $CONTAINERHOSTNAME" >> certbot-domains.conf
   echo "* Please restart/reload nginx"
   echo "* Please check SSL certificates" 
 fi
