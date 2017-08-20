@@ -1,9 +1,15 @@
 #!/usr/local/bin/jondocker
-map $HOME/redmine-files to /usr/src/redmine/files
+
+map $HOME/redmine_files to /usr/src/redmine/files
+
 depends on mysql
+
+network extern
+
 port 3000:3000
 
-params -e REDMINE_DB_MYSQL=mysql -e REDMINE_DB_ENCODING=utf8 -e REDMINE_DB_PASSWORD=100%Jondos
+params -e REDMINE_DB_MYSQL=mysql -e REDMINE_DB_ENCODING=utf8 -e REDMINE_DB_PASSWORD=100%Jondos -e REDMINE_NO_DB_MIGRATE=true
+# -e DEBIAN_FRONTEND=noninteractive
 
 function post_startup {
 
