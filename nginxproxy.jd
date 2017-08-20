@@ -5,7 +5,7 @@ image jwilder/nginx-proxy
 network extern
 
 map /var/run/docker.sock to /tmp/docker.sock:ro
-map nginxproxy_certs     to /etc/nginx/certs:rr
+map nginxproxy_certs     to /etc/nginx/certs:ro
 map nginxproxy_vhosts    to /etc/nginx/vhost.d
 map nginxproxy_html      to /usr/share/nginx/html
 

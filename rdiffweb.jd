@@ -2,9 +2,12 @@
 
 image jshridha/rdiffweb
 
+#port 80:8080
+
 map $HOME/Backup to /backups
 map $HOME/Restore to /restores
 map $HOME/rdiffweb_files/conf to /etc/rdiffweb
 
-network external
+network extern
 
+params -h backup.anonymous-proxy-servers.net -e VIRTUAL_PORT=8080
