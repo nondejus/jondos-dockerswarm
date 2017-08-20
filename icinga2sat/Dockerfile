@@ -50,6 +50,8 @@ RUN cd /etc/icinga2/pki && \
     --master_host $MASTER \
     --accept-commands \
     --accept-config
+    
+RUN icinga2 api setup && cat /etc/icinga2/conf.d/api-users.conf
 
 EXPOSE 5665
 

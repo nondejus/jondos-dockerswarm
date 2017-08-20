@@ -1,0 +1,10 @@
+#!/usr/local/bin/jondocker
+
+image jshridha/rdiffweb
+
+map $HOME/Backup to /backups
+map $HOME/Restore to /restores
+map $HOME/rdiffweb_files/conf to /etc/rdiffweb
+
+network external
+
