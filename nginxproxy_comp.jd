@@ -1,0 +1,10 @@
+#!/usr/local/bin/jondocker
+
+depends on nginxproxy
+
+map /var/run/docker.sock to /tmp/docker.sock:ro
+map nginxproxy_certs to /etc/nginx/certs:rw
+
+params --volumes-from nginxproxy
+
+image jrcs/letsencrypt-nginx-proxy-companion

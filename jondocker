@@ -20,6 +20,11 @@ function container_params {
   CONTAINERPARAMS="$CONTAINERPARAMS $*"
 }
 
+function network {
+  docker network ls | grep $1 || docker network create $1
+  PARAMS="$PARAMS --network $1"
+}
+
 function build_params {
   for i in "$@" ; do
     BUILDPARAMS="$BUILDPARAMS --build-arg $i"
@@ -79,15 +84,11 @@ shift
 
 prepareImage $IMAGE $BUILDPARAMS
 
-if [ -f nginx/$CONTNAME.conf ] ; then
-  ln -sf $PWD/nginx/$CONTNAME.conf /etc/nginx/sites-enabled/
-  CONTAINERHOSTNAME=$(grep [^$]server_name nginx/$CONTNAME.conf)
-  CONTAINERHOSTNAME=${CONTAINERHOSTNAME##* }
-  CONTAINERHOSTNAME=${CONTAINERHOSTNAME%;*}
-  [[ "$PARAMS" == *"-h"* ]] || PARAMS="$PARAMS -h $CONTAINERHOSTNAME"
-  grep -q $CONTAINERHOSTNAME certbot-domains.conf || echo "-d $CONTAINERHOSTNAME" >> certbot-domains.conf
-  echo "* Please restart/reload nginx"
-  echo "* Please check SSL certificates" 
+if [[ "$PARAMS" == *"-h "* ]]
+then 
+	HOSTNAME=${PARAMS##*-h }
+	HOSTNAME=${HOSTNAME%% *}
+	PARAMS="$PARAMS -e VIRTUAL_HOST=$HOSTNAME -e LETSENCRYPT_HOST=$HOSTNAME -e LETSENCRYPT_EMAIL=oliver.meyer@jondos.de"
 fi
 
 if docker ps -a | grep $CONTNAME

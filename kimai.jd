@@ -2,4 +2,6 @@
 
 depends on mysql
 
+network extern
+
 port 8080:80
