@@ -1,11 +1,8 @@
 #!/usr/local/bin/jondocker
 
-depends on nginxproxy
-
 map $HOME/mysql to /var/lib/mysql
 
 image mysql/mysql-server
 
 network extern
 
-port 3306:3306

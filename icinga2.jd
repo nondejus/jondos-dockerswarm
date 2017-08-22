@@ -2,7 +2,8 @@
 
 image jordan/icinga2
 
-port 127.0.0.1:7000:80
+network extern
+
 port 5665:5665
 
 params -h monitor.anonymous-proxy-servers.net
@@ -11,3 +12,6 @@ map $HOME/icinga2_files/conf to /etc/icinga2
 map $HOME/icinga2_files/db to /var/lib/mysql
 map $HOME/icinga2_files/icinga2 to /var/lib/icinga2
 
+function post_startup {
+	docker cp icinga2/monitor.anonymous-proxy-servers.net nginxproxy:/etc/nginx/vhost.d
+}

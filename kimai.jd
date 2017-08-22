@@ -4,4 +4,4 @@ depends on mysql
 
 network extern
 
-port 8080:80
+params -h timetracker.anonymous-proxy-servers.net
