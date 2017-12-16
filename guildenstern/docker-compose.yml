@@ -2,12 +2,6 @@ version: '2'
 
 services:
   
-    mysql:
-        image: mysql/mysql-server
-        restart: always
-        volumes:
-          - /home/ubuntu/mysql:/var/lib/mysql
-
     nginx-proxy:
       image: jwilder/nginx-proxy:alpine
       restart: always
