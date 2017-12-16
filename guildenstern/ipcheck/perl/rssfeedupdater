@@ -1,0 +1,132 @@
+#!/usr/bin/perl
+
+use XML::Simple;
+use Net::SSLeay qw(get_https);
+use HTML::Entities;
+
+my $page_de= '/var/www/anontest/rss-blog-feed-de.php';
+my $page_en= '/var/www/anontest/rss-blog-feed-en.php';
+
+
+my $content1;
+my $content2;
+
+($content1) = get_https('blog.anonymous-proxy-servers.net', 443, '/feeds/categories/26-JonDonym-News.rss');
+($content2) = get_https('blog.anonymous-proxy-servers.net', 443, '/feeds/categories/27-Speakers-Corner-of-JonDos.rss');
+
+
+if((defined($content1)) && (defined($content2))) {
+
+my $xs = XML::Simple->new();
+my $ref1 = $xs->XMLin($content1);
+my $ref2 = $xs->XMLin($content2);
+
+my $leer= ' ';
+my @datum1= split /$leer/, $ref1->{'channel'}->{item}[0]->{pubDate};
+my @datum2= split /$leer/, $ref1->{'channel'}->{item}[1]->{pubDate};
+my @datum3= split /$leer/, $ref1->{'channel'}->{item}[2]->{pubDate};
+my @datum4= split /$leer/, $ref2->{'channel'}->{item}[0]->{pubDate};
+my @datum5= split /$leer/, $ref2->{'channel'}->{item}[1]->{pubDate};
+my @datum6= split /$leer/, $ref2->{'channel'}->{item}[2]->{pubDate};
+
+# rewrite german blog article links with German language param
+my $delink1 = $ref1->{'channel'}->{'item'}[0]->{'link'};
+$delink1 =~ s/archives/index.php\?archives/gs;
+$delink1 = $delink1 . '&user_language=de';
+
+my $delink2 = $ref1->{'channel'}->{'item'}[1]->{'link'};
+$delink2 =~ s/archives/index.php\?archives/gs;
+$delink2 = $delink2 . '&user_language=de';
+
+my $delink3 = $ref1->{'channel'}->{'item'}[2]->{'link'};
+$delink3 =~ s/archives/index.php\?archives/gs;
+$delink3 = $delink3 . '&user_language=de';
+
+my $delink4 = $ref2->{'channel'}->{'item'}[0]->{'link'};
+$delink4 =~ s/archives/index.php\?archives/gs;
+$delink4 = $delink4 . '&user_language=de';
+
+my $delink5 = $ref2->{'channel'}->{'item'}[1]->{'link'};
+$delink5 =~ s/archives/index.php\?archives/gs;
+$delink5 = $delink5 . '&user_language=de';
+
+my $delink6 = $ref2->{'channel'}->{'item'}[2]->{'link'};
+$delink6 =~ s/archives/index.php\?archives/gs;
+$delink6 = $delink6 . '&user_language=de';
+
+
+
+# english version
+open($ofile, ">$page_en");
+
+print $ofile '<div id="news">';
+print $ofile '<div class="news_entries_title"><a href="http://blog.anonymous-proxy-servers.net//feeds/categories/26-JonDonym-News.rss" title="RSS Feed"><img height="16" width="16" align="right" alt="RSS Feed" src="/images/feed.png" border="0" vspace="0" hspace="5"></a> JonDonym News</div>';
+
+print $ofile '<div class="news_entry"><a href="', $ref1->{'channel'}->{'item'}[0]->{'link'};
+print $ofile '">', encode_entities($ref1->{'channel'}->{'item'}[0]->{'title'}), '</a><br>';
+print $ofile $datum1[0], ' ', $datum1[1], ' ', $datum1[2], ' ', $datum1[3];
+print $ofile '</div>';
+
+print $ofile '<div class="news_entry"><a href="', $ref1->{'channel'}->{'item'}[1]->{'link'};
+print $ofile '">', encode_entities($ref1->{'channel'}->{'item'}[1]->{'title'}), '</a><br>';
+print $ofile $datum2[0], ' ', $datum2[1], ' ', $datum2[2], ' ', $datum2[3];
+print $ofile '</div>';
+
+print $ofile '<div class="news_entry"><a href="', $ref1->{'channel'}->{'item'}[2]->{'link'};
+print $ofile '">', encode_entities($ref1->{'channel'}->{'item'}[2]->{'title'}), '</a><br>';
+print $ofile $datum3[0], ' ', $datum3[1], ' ', $datum3[2], ' ', $datum3[3];
+print $ofile '</div>';
+
+print $ofile '<div class="news_entries_title"><a href="http://blog.anonymous-proxy-servers.net/feeds/categories/27-Speakers-Corner-of-JonDos.rss" title="RSS Feed"><img height="16" width="16" align="right" alt="RSS Feed" src="/images/feed.png" border="0" vspace="0" hspace="5"></a> Speaker\'s Corner</div>';
+
+print $ofile '<div class="news_entry"><a href="', $ref2->{'channel'}->{'item'}[0]->{'link'};
+print $ofile '">', encode_entities($ref2->{'channel'}->{'item'}[0]->{'title'}), '</a><br>';
+print $ofile $datum4[0], ' ', $datum4[1], ' ', $datum4[2], ' ', $datum4[3];
+print $ofile '</div>';
+
+print $ofile '<div class="news_entry"><a href="', $ref2->{'channel'}->{'item'}[1]->{'link'};
+print $ofile '">', encode_entities($ref2->{'channel'}->{'item'}[1]->{'title'}), '</a><br>';
+print $ofile $datum5[0], ' ', $datum5[1], ' ', $datum5[2], ' ', $datum5[3];
+print $ofile '</div>';
+
+print $ofile '<div class="news_entry"><a href="', $ref2->{'channel'}->{'item'}[2]->{'link'};
+print $ofile '">', encode_entities($ref2->{'channel'}->{'item'}[2]->{'title'}), '</a><br>';
+print $ofile $datum6[0], ' ', $datum6[1], ' ', $datum6[2], ' ', $datum6[3];
+print $ofile '</div>';
+
+print $ofile '<div id="news_footer"><a title="JonDoBlog" href="https://blog.anonymous-proxy-servers.net/index.php?user_language=en">More blog entries</a>&nbsp;</div>';
+
+
+print $ofile '<div class="news_entries_title">Social Media</div>';
+print $ofile '<div id="sociallinks">';
+print $ofile '<a href="http://www.facebook.com/JonDonym"><img src="/images/facebook.png" alt="Jondonym on Facebook"></a>';
+print $ofile '<a href="http://twitter.com/JonDosGmbH"><img src="/images/twitter.png" alt="Jondonym on Twitter"></a>';
+print $ofile '<a href="http://www.youtube.com/user/JonDonym"><img src="/images/youtube.png" alt="Jondonym on YouTube"></a>';
+print $ofile '<a href="http://www.linkedin.com/companies/jondos-gmbh"><img src="/images/linkedin.png" alt="Get eye contact at LinkedIn"></a>';
+print $ofile '</div>';
+
+
+print $ofile '<div class="news_entries_title">More anonymity tests</div>';
+print $ofile '<div class="news_entry"><a title="DeAnonymizer" href="http://www.deanonymizer.com">DeAnonymizer</a></div>';
+print $ofile '<div class="news_entry"><a title="Decloak" href="http://decloak.net">Decloak</a></div>';
+print $ofile '<div class="news_entry"><a title="Torcheck" href="http://torcheck.xenobite.eu/">Torcheck</a></div>';
+print $ofile '<div class="news_entry"><a title="Panopticlick" href="http://panopticlick.eff.org">Panopticlick</a></div>';
+# print $ofile '<div class="news_entry"><a rel="nofollow" href="http://www.showmyip.com/?version=full">showmyip.com</a></div>';
+print $ofile '<div class="news_entry"><a title="BrowserSPY" href="http://browserspy.dk/">BrowserSPY.dk</a></div>';
+print $ofile '<div class="news_entry"><a title="evercookie" href="http://samy.pl/evercookie/">evercookie</a></div>';
+print $ofile '<div class="news_entry"><a title="Master Reconnaissance Tool" href="http://ha.ckers.org/mr-t/">Master Reconnaissance Tool</a></div>';
+print $ofile '<div class="news_entry"><a title="Torbutton Testing" href="http://pseudo-flaw.net/content/tor/torbutton/">Torbutton Testing</a></div>';
+# print $ofile '<div class="news_entry"><a title="IP.cc" href="http://www.ip.cc/anonymity-test.php">IP.cc</a></div>';
+print $ofile '<div class="news_entry"><a title="MyBrowserInfo.com" href="http://mybrowserinfo.com">MyBrowserInfo.com</a></div>';
+print $ofile '<div class="news_entry"><a title="Leader.ru" href="http://www.leader.ru/secure/who.html">Leader.ru</a></div>';
+print $ofile '<div class="news_entry"><a title="Whoer.net" href="http://whoer.net/extended">Whoer.net</a></div>';
+print $ofile '<div class="news_entry"><a title="DNS entropy test" href="https://www.dns-oarc.net/oarc/services/dnsentropy">DNS entropy test</a></div>';
+
+
+
+
+
+print $ofile '</div>';
+
+close $ofile;
+}

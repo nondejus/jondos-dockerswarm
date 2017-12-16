@@ -1,0 +1,37 @@
+#!/usr/bin/perl
+
+use CGI;
+use DBI;
+
+my $query = new CGI;
+
+my $sessionid= $ENV{'SSL_SESSION_ID'};
+my $zeit= time() / 256;
+
+my $mysql = DBI -> connect ("DBI:mysql:database=anontest", 'anontest', 'kzgt56TR12', {'RaiseError' => 0});
+
+# Loeschen alter Werte
+my $statement = $mysql -> prepare ('DELETE FROM sslsession WHERE zeit < ?');
+$statement -> execute ($zeit - 80);
+$statement->finish ();
+
+if (defined($sessionid)) {
+
+    $statement = $mysql -> prepare ('SELECT COUNT(*) FROM sslsession WHERE sessionid = ?');
+    $statement -> execute ($sessionid);
+    my $anz= $statement -> fetchrow_array ();
+    if ($anz == 0) {
+        $statement = $mysql -> prepare ('INSERT INTO sslsession VALUES ( ?, ?)');
+        $statement -> execute ($sessionid, $zeit);
+    }
+}
+
+$mysql->disconnect ();
+
+print $query->header(-type  =>  'text/css', -charset => "UTF-8", -expires => "Sat, 26 Jul 1997 05:00:00 GMT", -pragma => "no-cache");
+
+if (defined($sessionid)) {
+    print '<!-- ', $sessionid,  ' -->';
+} else {
+    print '<!--no ssl-session-id -->';
+}

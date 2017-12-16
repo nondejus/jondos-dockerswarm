@@ -1,0 +1,12 @@
+span.getIPWithCSSAndFTP:after {visibility:hidden;display:none;content: 'SVA9ODcuMjM2LjE5NC43NjtJU1BPck9yZ2FuaXphdGlvbj1Db29saG91c2luZywgcy5yLm8uO0NvdW50cnlDb2RlPUNaO0NvdW50cnlOYW1lPUN6ZWNoIFJlcHVibGljO1JlZ2lvbk9yQ2l0eT1IbGF2bmkgbWVzdG8gUHJhaGEsIFByYWhhO0xhdGl0dWRlPTUwLjA4MzM7TG9uZ2l0dWRlPTE0LjQ2Njc7UmV2ZXJzZUROUz11bmFzc2lnbmVkLTg3LjIzNi4xOTQuNzYuY29vbGhvdXNpbmcubmV0O3ZlcmlmaWVkRE5TPWZhbHNlO1Byb3h5TmFtZT1Kb25Eb255bTtQcm94eURpc3RyaWJ1dGlvbj01O21ldGhvZD1GVFA=';}
+font.ip_ftp a:before {content: " 87.236.194.76 [FTP]"}
+font.ip_ftp {background-color: #FF0000; padding: 3px 1em 3px 1em; color: Black;}
+span.ip_ftp {border: 5px solid #FF0000;}
+img#imgServiceLeaking {visibility:visible;display:inline;}
+img#imgServiceOK {visibility:hidden;display:none;}
+font#textServiceHint {visibility:visible;display:inline;}
+font#textServiceNOK_FTP {visibility:visible;display:inline;}
+font#textServiceNOK_HTTPS {visibility:hidden;display:none !important;}
+font#textServiceNOK_FLASH {visibility:hidden;display:none !important;}
+font#textServiceNOK_JAVA {visibility:hidden;display:none !important;}
+font#textServiceOK {visibility:hidden;display:none !important;}

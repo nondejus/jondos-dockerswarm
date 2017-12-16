@@ -1,0 +1,14 @@
+[
+    {
+        "Name": "Güldenstern",
+        "URL": "tcp://78.129.167.102:2375"
+    },
+    {
+        "Name": "Rosenkranz",
+        "URL": "unix:///var/run/docker.sock"
+    },
+    {
+        "Name": "Backup",
+        "URL": "tcp://81.7.10.95:2375"
+    }
+]

@@ -1,6 +1,0 @@
-#!/usr/local/bin/jondocker
-
-map $HOME/jenkins-files to /var/jenkins_home
-
-port 9090:8080
-port 50000:50000

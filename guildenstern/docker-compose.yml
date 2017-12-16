@@ -1,0 +1,118 @@
+version: '2'
+
+services:
+  
+    mysql:
+        image: mysql/mysql-server
+        restart: always
+        volumes:
+          - /home/ubuntu/mysql:/var/lib/mysql
+
+    nginx-proxy:
+      image: jwilder/nginx-proxy:alpine
+      restart: always
+      ports:
+        - "80:80"
+        - "443:443"
+      labels:
+        com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy: "true"
+      volumes:
+        - certs:/etc/nginx/certs:ro
+        - conf.d:/etc/nginx/conf.d
+        - /var/run/docker.sock:/tmp/docker.sock:ro
+        - ./vhost.d:/etc/nginx/vhost.d
+
+    letsencrypt:
+      image: jrcs/letsencrypt-nginx-proxy-companion
+      restart: always
+      volumes:
+        - certs:/etc/nginx/certs
+        - conf.d:/etc/nginx/conf.d
+        - /var/run/docker.sock:/var/run/docker.sock:ro
+        - ./vhost.d:/etc/nginx/vhost.d      
+      depends_on:
+        - nginx-proxy
+
+    jenkins:
+      image: jenkins
+      restart: always
+      hostname: build
+      domainname: anonymous-proxy-servers.net
+      environment: 
+        - VIRTUAL_HOST=build.anonymous-proxy-servers.net
+      volumes:
+        - /root/jenkins-files:/var/jenkins_home
+      ports:
+        - "50000:50000"
+
+    mail:
+      image: tvial/docker-mailserver:latest
+      restart: always
+      hostname: mail
+      domainname: domain.com
+      container_name: mail
+      ports:
+        - "78.129.167.102:25:25"
+        - "143:143"
+        - "465:465"
+        - "10465:465"
+        - "587:587"
+        - "10587:587"
+        - "993:993"
+        - "995:995"
+      volumes:
+        - /root/mail-files/data:/var/mail
+        - /root/mail-files/state:/var/mail-state
+        - /root/mail-files/config:/tmp/docker-mailserver
+      environment:
+        - ENABLE_SPAMASSASSIN=1
+        - ENABLE_CLAMAV=1
+        - ENABLE_FAIL2BAN=0
+        - ENABLE_POSTGREY=1
+        - ONE_DIR=1
+        - DMS_DEBUG=1
+        - ENABLE_SASLAUTHD=0 
+        - SSL_TYPE=letsencrypt 
+        - ENABLE_POP3=1
+      cap_add:
+        - NET_ADMIN
+        - SYS_PTRACE
+
+    ipcheck:
+      build: ./ipcheck
+      restart: always
+      hostname: ip-check.info
+      volumes:
+        - ipcheck-log:/var/log/apache2
+      ports:
+        - "21:21"
+      environment:
+        - VIRTUAL_HOST=ip-check.info,ipcheck.info,ip-check.org
+
+    svn:
+      image: marvambass/subversion
+      restart: always
+      hostname: svn
+      domainname: jondos.de
+      environment:
+        - VIRTUAL_HOST=svn.jondos.de
+      volumes:
+        - /root/svn-files/svn:/var/local/svn
+        - /rootHOME/svn-files/dav_svn:/etc/apache/dav_svn
+
+    shop:
+      build: ./shop
+      hostname: shop
+      domainname: anonymous-proxy-servers.net
+      environment:
+        - VIRTUAL_HOST=shop.anonymous-proxy-servers.net
+      volumes:
+        - /root/shop/db:/var/lib/mysql
+      #ports:
+      #  - "78.129.167.5:80:80"
+      #  - "78.129.167.5:443:443"
+
+volumes: 
+  conf.d:
+  certs:
+  ipcheck-log:

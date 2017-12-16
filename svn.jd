@@ -1,7 +1,0 @@
-#!/usr/local/bin/jondocker
-map $HOME/svn-files/svn to /var/local/svn
-map $HOME/svn-files/dav_svn /etc/apache/dav_svn
-
-port 7070:80
-
-image marvambass/subversion

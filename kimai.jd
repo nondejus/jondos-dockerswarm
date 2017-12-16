@@ -1,7 +1,0 @@
-#!/usr/local/bin/jondocker
-
-depends on mysql
-
-network extern
-
-params -h timetracker.anonymous-proxy-servers.net
