@@ -1,26 +1,20 @@
 version: '2'
 
 services:
-  
-    mysql:
-        image: mysql/mysql-server
-        restart: always
-        volumes:
-          - /home/ubuntu/mysql:/var/lib/mysql
 
     nginx-proxy:
       image: jwilder/nginx-proxy:alpine
       restart: always
       ports:
-        - "80:80"
-        - "443:443"
+        - "78.129.167.102:80:80"
+        - "78.129.167.102:443:443"
       labels:
         com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy: "true"
       volumes:
         - certs:/etc/nginx/certs:ro
         - conf.d:/etc/nginx/conf.d
         - /var/run/docker.sock:/tmp/docker.sock:ro
-        - ./vhost.d:/etc/nginx/vhost.d
+        - ./nginx-proxy/vhost.d:/etc/nginx/vhost.d
 
     letsencrypt:
       image: jrcs/letsencrypt-nginx-proxy-companion
@@ -29,7 +23,7 @@ services:
         - certs:/etc/nginx/certs
         - conf.d:/etc/nginx/conf.d
         - /var/run/docker.sock:/var/run/docker.sock:ro
-        - ./vhost.d:/etc/nginx/vhost.d      
+        - ./nginx-proxy/vhost.d:/etc/nginx/vhost.d
       depends_on:
         - nginx-proxy
 
