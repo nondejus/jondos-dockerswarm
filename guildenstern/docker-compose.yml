@@ -1,29 +1,31 @@
 version: '2'
 
 services:
-  
+
     nginx-proxy:
       image: jwilder/nginx-proxy:alpine
       restart: always
       ports:
-        - "80:80"
-        - "443:443"
+        - "78.129.167.102:80:80"
+        - "78.129.167.102:443:443"
       labels:
         com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy: "true"
       volumes:
+        - html:/usr/share/nginx/html
         - certs:/etc/nginx/certs:ro
-        - conf.d:/etc/nginx/conf.d
         - /var/run/docker.sock:/tmp/docker.sock:ro
-        - ./vhost.d:/etc/nginx/vhost.d
+        - /tmp/nginx-proxy/conf.d:/etc/nginx/conf.d
+        - ./nginx-proxy/vhost.d:/etc/nginx/vhost.d
 
     letsencrypt:
       image: jrcs/letsencrypt-nginx-proxy-companion
       restart: always
       volumes:
         - certs:/etc/nginx/certs
-        - conf.d:/etc/nginx/conf.d
+        - html:/usr/share/nginx/html
         - /var/run/docker.sock:/var/run/docker.sock:ro
-        - ./vhost.d:/etc/nginx/vhost.d      
+        - /tmp/nginx-proxy/conf.d:/etc/nginx/conf.d
+        - ./nginx-proxy/vhost.d:/etc/nginx/vhost.d
       depends_on:
         - nginx-proxy
 
@@ -34,6 +36,9 @@ services:
       domainname: anonymous-proxy-servers.net
       environment: 
         - VIRTUAL_HOST=build.anonymous-proxy-servers.net
+        - VIRTUAL_PORT=8080
+        - LETSENCRYPT_HOST=build.anonymous-proxy-servers.net
+        - LETSENCRYPT_EMAIL=oliver.meyer@jondos.de
       volumes:
         - /root/jenkins-files:/var/jenkins_home
       ports:
@@ -43,8 +48,7 @@ services:
       image: tvial/docker-mailserver:latest
       restart: always
       hostname: mail
-      domainname: domain.com
-      container_name: mail
+      domainname: jondos.de
       ports:
         - "78.129.167.102:25:25"
         - "143:143"
@@ -59,6 +63,7 @@ services:
         - /root/mail-files/state:/var/mail-state
         - /root/mail-files/config:/tmp/docker-mailserver
       environment:
+#        - VIRTUAL_HOST=mail.jondos.de
         - ENABLE_SPAMASSASSIN=1
         - ENABLE_CLAMAV=1
         - ENABLE_FAIL2BAN=0
@@ -83,16 +88,18 @@ services:
       environment:
         - VIRTUAL_HOST=ip-check.info,ipcheck.info,ip-check.org
 
-    svn:
+    subversion:
       image: marvambass/subversion
       restart: always
       hostname: svn
       domainname: jondos.de
       environment:
         - VIRTUAL_HOST=svn.jondos.de
+        - LETSENCRYPT_HOST=svn.jondos.de
+        - LETSENCRYPT_EMAIL=oliver.meyer@jondos.de
       volumes:
         - /root/svn-files/svn:/var/local/svn
-        - /rootHOME/svn-files/dav_svn:/etc/apache/dav_svn
+        - /root/svn-files/dav_svn:/etc/apache/dav_svn
 
     shop:
       build: ./shop
@@ -107,6 +114,6 @@ services:
       #  - "78.129.167.5:443:443"
 
 volumes: 
-  conf.d:
   certs:
   ipcheck-log:
+  html:
