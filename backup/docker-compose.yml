@@ -1,7 +1,7 @@
 version: '2'
 
 services:
-  
+
     nginx-proxy:
       image: jwilder/nginx-proxy:alpine
       restart: always
@@ -23,7 +23,7 @@ services:
         - certs:/etc/nginx/certs
         - conf.d:/etc/nginx/conf.d
         - /var/run/docker.sock:/var/run/docker.sock:ro
-        - ./vhost.d:/etc/nginx/vhost.d      
+        - ./vhost.d:/etc/nginx/vhost.d
       depends_on:
         - nginx-proxy
 
@@ -34,11 +34,12 @@ services:
       environment:
         - VIRTUAL_PORT=8080
         - VIRTUAL_HOST=backup.anonymous-proxy-servers.net
+        - LETSENCRYPT_HOST=backup.anonymous-proxy-servers.net
       volumes:
         - /root/Backup:/backups
         - /root/Restore:/restores
         - /root/rdiffweb_files/conf:/etc/rdiffweb
 
-volumes: 
+volumes:
   conf.d:
   certs:
