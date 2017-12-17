@@ -1,7 +1,7 @@
 version: '2'
 
 services:
-  
+
     redmine:
         build: ./redmine
         hostname: bugtracker
@@ -9,11 +9,11 @@ services:
         environment:
           - REDMINE_DB_MYSQL=mysql
           - REDMINE_DB_PASSWORD=100%Jondos
-          - REDMINE_DB_ENCODING=utf8 
-          - REDMINE_DB_PASSWORD=100%Jondos 
-          - REDMINE_DB_DATABASE=redmine3 
-          - REDMINE_DB_USERNAME=redmine 
-          - REDMINE_NO_DB_MIGRATE=true 
+          - REDMINE_DB_ENCODING=utf8
+          - REDMINE_DB_PASSWORD=100%Jondos
+          - REDMINE_DB_DATABASE=redmine3
+          - REDMINE_DB_USERNAME=redmine
+          - REDMINE_NO_DB_MIGRATE=true
           - VIRTUAL_HOST=bugtracker.anonymous-proxy-servers.net
           - VIRTUAL_PORT=3000
         depends_on:
@@ -27,7 +27,7 @@ services:
         image: portainer/portainer
         volumes:
           - /var/run/docker.sock:/var/run/docker.sock
-          - ./portainer to /endpoints
+          - ./portainer:/endpoints
           - /home/ubuntu/portainer_files/data:/data
         command: --external-endpoints /endpoints/endpoints.json --logo "https://anonymous-proxy-servers.net/images/jondo220.png"
 
@@ -56,6 +56,7 @@ services:
       labels:
         com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy: "true"
       volumes:
+        - html:/usr/share/nginx/html
         - certs:/etc/nginx/certs:ro
         - conf.d:/etc/nginx/conf.d
         - /var/run/docker.sock:/tmp/docker.sock:ro
@@ -67,8 +68,9 @@ services:
       volumes:
         - certs:/etc/nginx/certs
         - conf.d:/etc/nginx/conf.d
+        - html:/usr/share/nginx/html
         - /var/run/docker.sock:/var/run/docker.sock:ro
-        - ./vhost.d:/etc/nginx/vhost.d      
+        - ./vhost.d:/etc/nginx/vhost.d
       depends_on:
         - nginx-proxy
 
@@ -95,6 +97,7 @@ services:
         - /home/ubuntu/icinga2_files/db:/var/lib/mysql
         - /home/ubuntu/icinga2_files/icinga2 to /var/lib/icinga2
 
-volumes: 
+volumes:
   conf.d:
   certs:
+  html:

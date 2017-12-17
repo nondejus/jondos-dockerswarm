@@ -15,7 +15,7 @@ services:
         - certs:/etc/nginx/certs:ro
         - /var/run/docker.sock:/tmp/docker.sock:ro
         - /tmp/nginx-proxy/conf.d:/etc/nginx/conf.d
-        - ./nginx-proxy/vhost.d:/etc/nginx/vhost.d
+        - ./vhost.d:/etc/nginx/vhost.d
 
     letsencrypt:
       image: jrcs/letsencrypt-nginx-proxy-companion
@@ -25,7 +25,7 @@ services:
         - html:/usr/share/nginx/html
         - /var/run/docker.sock:/var/run/docker.sock:ro
         - /tmp/nginx-proxy/conf.d:/etc/nginx/conf.d
-        - ./nginx-proxy/vhost.d:/etc/nginx/vhost.d
+        - ./vhost.d:/etc/nginx/vhost.d
       depends_on:
         - nginx-proxy
 
@@ -34,7 +34,7 @@ services:
       restart: always
       hostname: build
       domainname: anonymous-proxy-servers.net
-      environment: 
+      environment:
         - VIRTUAL_HOST=build.anonymous-proxy-servers.net
         - VIRTUAL_PORT=8080
         - LETSENCRYPT_HOST=build.anonymous-proxy-servers.net
@@ -70,8 +70,8 @@ services:
         - ENABLE_POSTGREY=1
         - ONE_DIR=1
         - DMS_DEBUG=1
-        - ENABLE_SASLAUTHD=0 
-        - SSL_TYPE=letsencrypt 
+        - ENABLE_SASLAUTHD=0
+        - SSL_TYPE=letsencrypt
         - ENABLE_POP3=1
       cap_add:
         - NET_ADMIN
@@ -113,7 +113,7 @@ services:
       #  - "78.129.167.5:80:80"
       #  - "78.129.167.5:443:443"
 
-volumes: 
+volumes:
   certs:
   ipcheck-log:
   html:

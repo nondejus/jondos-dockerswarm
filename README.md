@@ -1,229 +1,130 @@
 # Skripte und Konfigurationsdateien für eine Docker-basierte Infrastruktur für JonDos GmbH
 
-## Komponenten
+Gemäß dem Ansatz "infrastructure as code" wird zum Aufbau der einzelnen Server je ein docker-compose-Script benutzt.
 
-### jondocker
+## Allgemein
 
-Das Script "jondocker" bietet eine domänenspezifische Sprache (DSL) zur Definition von Docker-basierten Diensten bzw. Servern.
+Jeder der Server nutzt NginX als Reverse Proxy. Dabei kommt das Docker-Image [jwilder/nginx-proxy](https://github.com/jwilder/nginx-proxy) zum Einsatz.
 
-Um jondocker zu installieren, muss das Script einmalig mit Administratorrechten und dem Parameter "--install" ausgeführt werden:
+Zuständig für die Zertifikate ist ein eigenes Docker-Image, das als "Companion" für den Reverse Proxy läuft: [jrcs/letsencrypt-nginx-proxy-companion](https://github.com/JrCs/docker-letsencrypt-nginx-proxy-companion)
 
-```shell
-> sudo jondocker --install
-```
-#### jondocker-Scripts
+## Volumes
 
-Ein JonDocker-Script sollte einen Namen mit der Endung `.jd` haben, das ist aber nicht zwingend erforderlich.
+### Lokale Volumes
 
-Die "Shebang"-Zeile am Anfang der Datei muss auf den Pfad zum Script jondocker zeigen.
-```shell
-#!/usr/local/bin/jondocker
-```
+Diese Volumes werden vom NginX-Reverse-Proxy und dem zugehörigen Let's Encrypt-Companion benötigt und müssen auf allen Hosts definiert sein:
 
-#### Allgemein
+| Pfad | Funktion |
+|------|----------|
+|./vhost.d|Containerspezifische Konfigurationsdateien für den Reverse Proxy|
+|/var/run/docker.sock|Notwendig für die Kommunikation zwischen beiden Containern und dem Docker-Host|
 
-Ein JonDocker-Script ist grundsätzlich ein normales Shell-Script, d.h. alle Shell-Befehle können darin aufgerufen werden.
+### Benannte Volumes
 
-Zusätzlich unterstützt es einige spezifische Direktiven (s.u.), die sich auf die Konfiguration und den Start eines Docker-Containers beziehen.
+Diese Volumes müssen aus demselben Grund auf allen Containern definiert sein, sind aber für den Host irrelevant und müssen daher nicht auf das lokale Dateisystem zeigen:
 
-JonDocker arbeitet nach dem Prinzip "convention over configuration" - für jede Direktive gibt es einen voreingestellten Wert, so dass theoretisch eine ausführbare Datei mit der Endung `.jd`, das nur aus der obigen "Shebang"-Zeile besteht, bereits ein gültiges JonDocker-Script.
+| Pfad | Funktion |
+|------|----------|
+|certs|Zertifikatsspeicher und -austauschverzeichnis für Reverse Proxy und Let's Encrypt-Container|
+|conf.d|Persistente Konfiguration für Reverse Proxy (Let's Encrypt-Container benötigt ebenfalls Zugriff)|
+|html|Reverse Proxy braucht Zugriff auf SSL-Challenge-Dateien, die der Let's Encrypt-Container hier ablegt|
 
-#### Funktionsweise
 
-JonDocker strebt danach, den Prozess der Erstellung und des Starts eines Docker-Containers zu automatisieren.
-Der Aufruf
+Siehe auch:
+  * _Peter Siering: [Umbauanleitung](https://www.heise.de/select/ct/2017/15/1500578738258740) - Docker-Container für Heim- und Webserver, c't Magazin für Computer und Technik, Ausgabe 15/2017, S. 110_
 
-```
-./nagios.jd
-```
+## backup.anonymous-proxy-servers.net
 
-versucht folgende Schritte durchzuführen:
-1. Bau eines Docker-Abbilds mit dem Namen `nagios` gemäß `./nagios/Dockerfile`.
-2. Erstellung eines Docker-Containers mit dem Namen `nagios` auf Basis des eben erstellten Abbilds.
-3. Start des Docker-Containers.
+Für den Backup-Server kommt [jshridha/rdiffweb](https://github.com/jshridha/docker-rdiffweb) zum Einsatz.
 
-Falls das Abbild bereits gebaut wurde, wird es nicht erneut gebaut, es sei denn, das Dockerfile wurde seitdem geändert.
-Statt dem Bau eines Abbilds kann auch eines aus einem öffentlichen Repository verwendet werden.
+### Volumes
 
-Der Bau und der Start des Containers kann durch verschiedene Direktiven in der `.jd`-Datei beeinflusst werden.
+#### Lokale Volumes
 
-#### Docker-Direktiven
+Der Container erhält 3 Volumes im lokalen Dateisystem:
 
-##### depends
+| Lokaler Pfad | Beschreibung |
+|--------------|--------------|
+| /root/Backup | Das Verzeichnis, in dem die Backups nach Server abgelegt werden. |
+| /root/Restore | Nach einem Restore landen hier die wieder hergestellten Dateien. |
+| /root/rdiffweb_files/conf | Das Konfigurationsverzeichnis von rdiffweb |
 
-_Default: (nichts)_
+## Rosenkranz
 
-`depends` definiert eine Abhängigkeit zwischen Docker-Containern. Die Direktive
+Der Server "Rosenkranz" ist eine AWS-EC2-Instanz mit dem micro-Profil.
+Er behinhaltet folgende Dienste:
 
-```
-depends container_name
-```
+| Dienst | Image | URL |
+|--------|-------|-----|
+|[Redmine](https://www.redmine.org)|[Redmine](https://hub.docker.com/_/redmine/)|https://bugtracker.anonymous-proxy-servers.net|
+|[Portainer](https://portainer.io)|[Portainer](https://hub.docker.com/r/portainer/portainer/)|https://monitoring.anonymous-proxy-servers.net/containers|
+|[Kimai](https://www.kimai.org)|Eigenes Image basierend auf Ubuntu|https://timetracker.anonymous-proxy-servers.net|
+|Etherpad|[Etherpad](https://github.com/ether/etherpad-docker)|https://etherpad.anonymous-proxy-servers.net|
+|Icinga2| (in Vorbereitung) | |
+|[MySQL](https://www.mysql.com)|[MySQL](https://hub.docker.com/_/mysql/)|(notwendig für Redmine, Kimai und Etherpad)|
 
-bewirkt, dass im gleichen Verzeichnis nach einem JonDocker-Script namens `container_name.jd` gesucht wird.
-Diese Datei wird dann als JonDocker-Script gestartet. Falls sie weitere `depends`-Direktiven enthält, werden diese rekursiv ausgeführt. Anschließend wird der Rest der aktuellen Datei ausgeführt.
+Sofern erforderlich, gehört zum jeweiligen Container ein gleichnamiges Verzeichnis, in dem zusätzliche Dateien liegen, z.B. Dockerfiles und zusätzliche Konfigurationsdateien.
+Ein weiteres Verzeichnis namens `vhost.d` dient als Volume für den NginX-Container und enthält dienstspezifische Konfigurationsdateien für den Reverse Proxy.
 
-Falls keine `.jd`-Datei dieses Namens gefunden wird, bricht das Skript mit einem Fehler ab.
+### Volumes
 
-##### entrypoint
+Die folgenden Volumes sind auf diesem Host zusätzlich zu denen unter ["Allgemein"](#Allgemein) zu definieren:
 
-_Default: (leer)_
+#### Lokale Volumes
 
-Legt einen Entrypoint-Befehl für einen Docker-Container fest, abweichend von dem, der im Dockerfile konfiguriert ist.
+| Pfad | Funktion |
+|------|----------|
+|/home/ubuntu/redmine_files/upload|Attachments in Redmine-Tickets|
+|/home/ubuntu/redmine_files/configuration.yml|Konfigurationsdatei für Redmine|
+|./portainer|Vorkonfigurierte Endpoints für Portainer|
+|/home/ubuntu/portainer_files/data|Persistentes Datenverzeichnis für Portainer|
+|/home/ubuntu/mysql|Datenverzeichnis für MySQL|
 
-Beispiel:
-```shell
-entrypoint /run.sh
-```
+## Güldenstern
 
-Dies bewirkt, dass der Befehl zum Starten des Docker-Containers folgendermaßen ausgeführt wird:
+Der Server "Güldenstern" ist ein Root-Server.
+Auf ihm laufen folgende Container:
 
-```shell
-docker run -d (Parameter...) /run.sh
-```
+| Dienst | Image | URL |
+|--------|-------|-----|
+|Mail    |Postfix/Dovecot: [tvial/docker-mailserver](https://hub.docker.com/r/tvial/docker-mailserver/) | mail.jondos.de |
+|IP-Check|Eigenes Image, basierend auf [php:5-apache-jessie](https://hub.docker.com/_/php/)|https://ip-check.info|
+|Shop|Eigenes Image, basierend auf [httpd](https://hub.docker.com/_/httpd/)|https://shop.anonymous-proxy-servers.net|
+|[Jenkins](https://jenkins-ci.org)|[Jenkins](https://hub.docker.com/_/jenkins/)| https://build.anonymous-proxy-servers.net|
+|[Subversion](https://subversion.apache.org)|[Subversion von MarvAmBass](https://hub.docker.com/r/marvambass/subversion/)|https://svn.jondos.de|
 
-##### image
+#### IP-Check
 
-_Default: Basisname der .jd-Datei ohne Endung_
+Der Container für "IP-Check" basiert auf einem eigens konstruierten Image, das wiederum auf dem offiziellen PHP-Image Version 5 (für Apache 2 und Debian Jessie) basiert. Es stellt folgende Dienste bereit:
+  - Webseite https://ip-check.info auf Apache 2
+  - FTP-Testseite
+  - InfoService
+  - Policy-Server
+  - Tor
 
-Legt den Namen des zu verwendenden Docker-Abbilds fest.
+#### Shop
 
-JonDocker überprüft zunächst, ob im selben Verzeichnis der .jd-Datei ein Verzeichnis mit dem angegebenen Abbildnamen existiert. In diesem Verzeichnis muss eine Datei namens `Dockerfile` existieren, die ein gültiges Dockerfile darstellt. Falls diese Bedingungen erfüllt sind, wird aus dem Dockerfile das entsprechende Abbild mit dem angegebenen Namen gebaut.
+Auch der Container für "Shop" basiert auf einem eigens dafür konstruierten Image. Enthaltene Dienste:
+  - Webseite https://shop.anonymous-proxy-servers.net auf Apache 2
+  - Webshop für JonDos (Perl)
+  - PaySafeCard-Client (Java auf Apache Tomcat 7)
 
-Existiert kein Verzeichnis mit diesem Namen, wird im lokalen Abbild-Repositor nach einem entsprechenden Abbild gesucht. Ist keines vorhanden, wird versucht, mittels `docker pull` das entsprechende Abbild aus den öffentlichen Repositories herunterzuladen.
-Wird keines gefunden, wird das Script fehlerhaft beendet.
+### Volumes
 
-##### map
+Die folgenden Volumes sind auf diesem Host zusätzlich zu denen unter ["Allgemein"](#Allgemein) zu definieren:
 
-_Default: (leer)_
+##### Lokale Volumes
 
-Ordnet einem angegebenen Verzeichnis ein Volume im Docker-Container zu.
-Beispiel:
-```
-map /from /to
-```
+| Pfad | Funktion |
+|------|----------|
+|/root/jenkins-files|Persistente Konfiguration für Jenkins|
+|/root/mail-files/data|Gespeicherte Daten des Mail-Containers|
+|/root/mail-files/state|Persistenter Zustand des Mail-Containers|
+|/root/mail-files/config|Persistente Konfiguration des Mail-Containers|
+|/root/shop/db|MySQL-Datenbank des Shop-Containers|
 
-Hiermit wird das Verzeichnis `/from` auf dem Host als Verzeichnis `/to` im Container sichtbar gemacht.
-Die Direktive entspricht der Angabe `docker run -v /from:/to`.
+##### Benannte Volumes
 
-##### params
-
-_Default: (leer)_
-
-Definiert weitere Parameter für das `docker run`-Kommando. Beispiel:
-
-```
-params --privileged --rm
-```
-
-##### port
-
-_Default: (nichts)_
-
-Ordnet einem TCP-Port des Hosts einen Port im laufenden Container zu. Normalerweise handelt es sich dabei um einen Port, der im Dockerfile mit `EXPOSE` freigegeben wurde; dies ist aber nicht zwingend erforderlich.
-Beispiel:
-
-```
-port 78.129.167.168:21:21
-```
-
-Die Angabe entspricht dem Aufruf `docker run -p 78.129.167.168:21:21`. Die IP-Adresse kann auch weggelassen werden; in diesem Fall wird `0.0.0.0` angenommen.
-
-##### post_startup
-
-_Default: (nichts)_
-
-In der `.jd`-Datei kann eine Funktion mit dem Namen `post_startup` definiert werden. Diese Funktion wird nach dem Start des Containers als Callback-Funktion aufgerufen. Es werden aktuell keine Parameter übergeben.
-
-#### Reverse Proxy-Konfiguration
-
-Um Web-Dienste auf einem der Docker-Container für Zugriffe von "außen" zugänglich zu machen, kann dem Container ein Reverse Proxy vorgeschaltet werden.
-
-##### NginX-Konfiguration
-
-Standardmäßig sucht JonDocker im aktuellen Verzeichnis nach einer Datei mit dem Pfad `nginx/<Containername>.conf`. Wird eine solche Datei gefunden, so wird sie **auf dem Host** per symbolischer Verknüpfung unter `/etc/nginx/sites-enabled` eingebunden. Falls dort bereits eine Datei oder eine symbolische Verknüpfung dieses Namens existiert, wird sie überschrieben.
-
-##### Container-Hostname
-
-Falls eine NginX-Konfiguration gefunden wird, versucht JonDocker, den Hostnamen des Containers auf den Namen festzulegen, der in der NginX-Konfiguration mit der Direktive `server_name` gesetzt wurde. Dieser Name wird dann an über den Parameter `-h` an den Docker-Container übergeben. Beispiel:
-
-_`nginx/nagios.conf:`_
-```
-server_name monitoring.anonymous-proxy-servers.net;
-```
-
-_Effektives Docker-Kommando:_
-```
-docker run -d --name nagios -h monitoring.anonymous-proxy-servers.net nagios
-```
-
-##### SSL-Konfiguration / Hilfsskript `certbot.sh`
-
-Der Hostname aus der NginX-Konfiguration wird zusätzlich in eine Datei `certbot-domains.conf` geschrieben.
-Die dort abgelegten Domainnamen können mit dem Hilfsscript `certbot.sh` in eine Let's Encrypt-Konfiguration übertragen werden.
-
-`certbot.sh` kennt folgende Parameter:
-
-_--init_
-
-Erstellt eine Let's Encrypt-Konfiguration mit den Domains in der Datei `certbot-domains.conf`.
-
-_--renew_
-
-Erneuert alle aktiven Let's Encrypt-Zertifikate.
-
-In beiden Fällen wird ein ggf. laufender NginX-Server zunächst beendet und dann neu gestartet.
-
----
-
-## Definierte Container
-
-### etherpad-docker.jd _(derzeit nicht verwendet)_
-
-Ein Docker-Container für Etherpad. Wird derzeit nicht verwendet.
-
-### ipcheck.jd
-
-Ein Container für den Dienst http://ip-check.info und den JonDos-Infoservice.
-
-| **Hinweis** |
-| Das zugehörige Abbild wurde aus einem laufenden Debian-System erstellt. Künftig soll hierfür ein Abbild verwendet werden, das aus einem Dockerfile erstellt wird. |
-
-### jenkins.jd
-
-Ein Container für das JonDos-Buildsystem.
-Quelle: https://hub.docker.com/_/jenkins/
-
-### kimai.jd
-
-Ein Container für das Zeiterfassungssystem Kimai.
-
-### mail.jd
-
-Ein Container für eingehenden und ausgehenden Mailverkehr (Postfix und Dovecot).
-Quelle: https://github.com/tomav/docker-mailserver
-
-### mysql.jd
-
-Ein Container für die Datenbank. Wird aktuell nur von kimai und Redmine verwendet.
-Quelle: https://hub.docker.com/_/mysql/
-
-### nagios.jd
-
-Ein Container für das Monitoring-System.
-
-### redmine.jd _(derzeit nicht verwendet)_
-
-Ein Container für den Bugtracker Redmine. Der Container wird aktuell nicht verwendet; der Bugtracker läuft direkt auf dem jeweiligen Host.
-Quelle: https://hub.docker.com/_/redmine/
-
-### shop.jd
-
-Ein Container für den Web-Shop von JonDos.
-
-**Hinweis** |
-| Das zugehörige Abbild wurde aus einem laufenden Debian-System erstellt. Künftig soll hierfür ein Abbild verwendet werden, das aus einem Dockerfile erstellt wird. |
-
-### svn.jd
-
-Ein Container für den Subversion-Server.
-Quelle: https://hub.docker.com/r/krisdavison/svn-server/
+| Pfad | Funktion |
+|------|----------|
+|ipcheck-log|Im Container "IP-Check" fallen große Datenmengen an Log-Dateien an; dieses Volume sollte daher regelmäßig gelöscht und neu angelegt werden.|
