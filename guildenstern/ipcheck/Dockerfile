@@ -2,6 +2,8 @@ FROM php:5-apache-jessie
 
 ENV DEBIAN_FRONTEND noninteractive
 
+RUN echo Europe/Berlin > /etc/timezone
+
 RUN apt-get update && apt-get install -y gpgv sudo
 
 # set up tor repo
@@ -56,6 +58,9 @@ COPY tor/torupdate /usr/local/bin
 COPY ftp /home
 COPY cron.weekly /etc/cron.weekly
 COPY geoip/GeoIP.conf /etc/GeoIP.conf
+COPY tor/torrc /etc/tor/torrc
+COPY tor/torsocks.conf /etc/tor/torsocks.conf
+COPY tor/tor-service-defaults-torrc /usr/share/tor/tor-service-defaults-torrc
 
 RUN echo "10 * * * * /usr/local/bin/torupdate" | crontab
 
@@ -66,8 +71,6 @@ RUN chmod -R a+x \
     /var/www/policyserver \
     /etc/cron.weekly \
     /docker-entrypoint.sh
-
-RUN ln -sf /dev/stdout /var/log/tor/log
 
 RUN cd /var/www && \
     svn checkout https://svn.jondos.de/svn/anontest
@@ -97,6 +100,8 @@ RUN useradd -d /var/lib/infoservice -U jondonym-infoservice && \
 RUN a2enmod expires && a2enmod rewrite && apachectl configtest
 
 VOLUME /var/log/apache2
+
+WORKDIR /var/www/anontest
 
 EXPOSE 21
 EXPOSE 80

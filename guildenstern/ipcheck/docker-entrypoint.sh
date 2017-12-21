@@ -1,7 +1,12 @@
 #!/bin/bash
 
+mkdir /var/run/tor
+chown -R debian-tor /var/run/tor
+
 service mysql start
 service tor start
+
+torupdate
 
 java -server -Djava.awt.headless=true -jar /usr/share/java/InfoService.jar /etc/infoservice/InfoService.properties &
 
