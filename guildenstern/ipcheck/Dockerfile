@@ -28,8 +28,10 @@ RUN apt-get update && apt-get install -y \
     build-essential libcurl4-openssl-dev zlib1g-dev 
 
 # install geoipupdate
+# there is no package for Jessie, need to compile it ourselves
 RUN git clone https://github.com/maxmind/geoipupdate /tmp/geoipupdate && \
-    cd /tmp/geoipupdate && ./bootstrap && ./configure --prefix=/usr && make && make install
+    cd /tmp/geoipupdate && ./bootstrap && ./configure --prefix=/usr --sysconfdir=/etc && make && make install && \
+    cd && rm -rf /tmp/geoipupdate
 
 # install mysql
 RUN service mysql start && \
@@ -53,10 +55,9 @@ COPY /perl/rssfeedupdater /usr/local/bin
 COPY tor/torupdate /usr/local/bin
 COPY ftp /home
 COPY cron.weekly /etc/cron.weekly
+COPY geoip/GeoIP.conf /etc/GeoIP.conf
 
 RUN echo "10 * * * * /usr/local/bin/torupdate" | crontab
-
-RUN ls /var/www
 
 RUN chmod -R a+x \
     /bin/aplog_anon \
@@ -65,8 +66,6 @@ RUN chmod -R a+x \
     /var/www/policyserver \
     /etc/cron.weekly \
     /docker-entrypoint.sh
-
-VOLUME /var/log/apache2
 
 RUN ln -sf /dev/stdout /var/log/tor/log
 
@@ -83,6 +82,8 @@ RUN cd /var/www && \
 #    cd .. && \
 #    rm -rf InfoService ~/.m2
 
+RUN /etc/cron.weekly/updategeoip
+
 # clean up unneccesary packages
 RUN apt-get purge -y maven automake autoconf libtool git && apt-get autoremove -y
 
@@ -92,6 +93,10 @@ RUN cd /var/www/anontest/ftptest && javac testftpserver/FTPServer.java
 
 RUN useradd -d /var/lib/infoservice -U jondonym-infoservice && \
     useradd -M infoservice
+
+RUN a2enmod expires && a2enmod rewrite && apachectl configtest
+
+VOLUME /var/log/apache2
 
 EXPOSE 21
 EXPOSE 80
