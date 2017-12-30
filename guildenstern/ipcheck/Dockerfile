@@ -73,7 +73,7 @@ RUN chmod -R a+x \
     /docker-entrypoint.sh
 
 RUN cd /var/www && \
-    svn checkout https://svn.jondos.de/svn/anontest
+    git clone https://github.com/jondos/anontest.git
 
 # Building InfoService fails because TU Dresden maven repo is defunct
 #
@@ -88,7 +88,7 @@ RUN cd /var/www && \
 RUN /etc/cron.weekly/updategeoip
 
 # clean up unneccesary packages
-RUN apt-get purge -y maven automake autoconf libtool git && apt-get autoremove -y
+RUN apt-get purge -y maven automake autoconf libtool git subversion && apt-get autoremove -y && apt-get clean
 
 COPY java/InfoService.jar /usr/share/java
 
