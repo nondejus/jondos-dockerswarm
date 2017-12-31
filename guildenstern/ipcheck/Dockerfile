@@ -1,3 +1,12 @@
+## Note on github credentils:
+## Write the credentials in the form
+##   https://username:password@github.com
+## to a file called "github-credentials" in the container build context.
+## You can delete the file once the image is built
+##
+## There currently is no other secure way to
+## pass credentials to a docker build.
+
 FROM php:5-apache-jessie
 
 ENV DEBIAN_FRONTEND noninteractive
@@ -29,6 +38,13 @@ RUN apt-get update && apt-get install -y \
     automake autoconf libtool \
     build-essential libcurl4-openssl-dev zlib1g-dev 
 
+COPY github-credentials /tmp/github-credentials
+
+RUN cd /var/www && \
+    git config --global credential.helper "store --file=/tmp/github-credentials" && \
+    git clone https://github.com/jondos/anontest.git && \
+    rm -f /tmp/github
+
 # install geoipupdate
 # there is no package for Jessie, need to compile it ourselves
 RUN git clone https://github.com/maxmind/geoipupdate /tmp/geoipupdate && \
@@ -36,7 +52,9 @@ RUN git clone https://github.com/maxmind/geoipupdate /tmp/geoipupdate && \
     cd && rm -rf /tmp/geoipupdate
 
 # install mysql
-RUN service mysql start && \
+# Workaround for docker filesystem issue https://github.com/docker/for-linux/issues/72
+RUN find /var/lib/mysql -type f -exec touch {} \; && \
+    service mysql start && \
     /usr/bin/mysql -u root -e "CREATE DATABASE anontest; \
 CREATE TABLE anontest.sslsession (sessionid varchar(70) NOT NULL, zeit int(11) NOT NULL, \
 PRIMARY KEY (sessionid)) ENGINE=MyISAM DEFAULT CHARSET=latin1; \
@@ -71,9 +89,6 @@ RUN chmod -R a+x \
     /var/www/policyserver \
     /etc/cron.weekly \
     /docker-entrypoint.sh
-
-RUN cd /var/www && \
-    git clone https://github.com/jondos/anontest.git
 
 # Building InfoService fails because TU Dresden maven repo is defunct
 #
