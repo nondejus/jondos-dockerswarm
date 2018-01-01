@@ -6,7 +6,7 @@ RUN apt-get update && \
     git \
     tomcat8
 
-COPY shop.conf /etc/apache2/sites-available
+COPY apache2/shop.conf /etc/apache2/sites-available
 COPY perl/aplog_anon.pl /usr/local/bin
 COPY java/paysafecardclient.war /var/lib/tomcat8/webapps
 COPY tomcat/tomcat-users.xml /var/lib/tomcat8/conf

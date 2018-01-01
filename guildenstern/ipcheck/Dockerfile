@@ -27,13 +27,16 @@ RUN apt-get update && apt-get install -y \
     deb.torproject.org-keyring \
     git \
     automake autoconf libtool \
-    build-essential libcurl4-openssl-dev zlib1g-dev 
+    build-essential libcurl4-openssl-dev zlib1g-dev
 
 # install geoipupdate
 # there is no package for Jessie, need to compile it ourselves
 RUN git clone https://github.com/maxmind/geoipupdate /tmp/geoipupdate && \
     cd /tmp/geoipupdate && ./bootstrap && ./configure --prefix=/usr --sysconfdir=/etc && make && make install && \
     cd && rm -rf /tmp/geoipupdate
+
+# Workaround for docker filesystem issue https://github.com/docker/for-linux/issues/72
+RUN find /var/lib/mysql -type f -exec touch {} \; && service mysql start
 
 # install mysql
 RUN service mysql start && \
@@ -46,7 +49,7 @@ GRANT ALL ON anontest.* TO 'anontest'@'localhost';" && \
 # ----------
 
 COPY docker-entrypoint.sh /
-COPY apache2/ipcheck.conf /etc/apache2/sites-enabled 
+COPY apache2/ipcheck.conf /etc/apache2/sites-enabled
 COPY /perl/aplog_anon.pl /bin/aplog_anon
 COPY java/InfoService.properties /etc/infoservice/InfoService.properties
 COPY certs /etc/infoservice/certs
@@ -108,6 +111,3 @@ EXPOSE 80
 EXPOSE 443
 
 ENTRYPOINT [ "/docker-entrypoint.sh" ]
-
-
-
