@@ -117,8 +117,6 @@ RUN useradd -d /var/lib/infoservice -U jondonym-infoservice && \
 
 RUN a2enmod expires && a2enmod rewrite && apachectl configtest
 
-VOLUME /var/log/apache2
-
 WORKDIR /var/www/anontest
 
 EXPOSE 21
