@@ -38,6 +38,8 @@ RUN apt-get update && apt-get install -y \
     automake autoconf libtool \
     build-essential libcurl4-openssl-dev zlib1g-dev
 
+RUN cpan install && cpan install Geo::IP
+
 COPY github-credentials /tmp/github-credentials
 
 RUN cd /var/www && \
@@ -102,6 +104,7 @@ RUN chmod -R a+x \
 #    rm -rf InfoService ~/.m2
 
 RUN /etc/cron.weekly/updategeoip
+RUN ln -s /usr/share/GeoIP /usr/local/share/GeoIP
 
 # clean up unneccesary packages
 RUN apt-get purge -y maven automake autoconf libtool git subversion && apt-get autoremove -y && apt-get clean
