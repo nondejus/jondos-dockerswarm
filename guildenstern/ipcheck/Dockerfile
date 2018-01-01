@@ -51,12 +51,10 @@ RUN git clone https://github.com/maxmind/geoipupdate /tmp/geoipupdate && \
     cd /tmp/geoipupdate && ./bootstrap && ./configure --prefix=/usr --sysconfdir=/etc && make && make install && \
     cd && rm -rf /tmp/geoipupdate
 
-# Workaround for docker filesystem issue https://github.com/docker/for-linux/issues/72
-RUN find /var/lib/mysql -type f -exec touch {} \; && service mysql start
-
 # install mysql
 # Workaround for docker filesystem issue https://github.com/docker/for-linux/issues/72
-RUN find /var/lib/mysql -type f -exec touch {} \; && \
+RUN ln -sf /dev/stdout /var/log/mysql/error.log && \
+    find /var/lib/mysql -type f -exec touch {} \; && \
     service mysql start && \
     /usr/bin/mysql -u root -e "CREATE DATABASE anontest; \
 CREATE TABLE anontest.sslsession (sessionid varchar(70) NOT NULL, zeit int(11) NOT NULL, \
@@ -115,7 +113,7 @@ RUN cd /var/www/anontest/ftptest && javac testftpserver/FTPServer.java
 RUN useradd -d /var/lib/infoservice -U jondonym-infoservice && \
     useradd -M infoservice
 
-RUN a2enmod expires && a2enmod rewrite && apachectl configtest
+RUN a2enmod expires && a2enmod rewrite && a2dissite 000-default && apachectl configtest
 
 WORKDIR /var/www/anontest
 

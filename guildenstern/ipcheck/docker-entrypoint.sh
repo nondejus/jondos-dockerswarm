@@ -3,7 +3,10 @@
 mkdir /var/run/tor
 chown -R debian-tor /var/run/tor
 
-service mysql start
+# Workaround for docker filesystem issue https://github.com/docker/for-linux/issues/72
+find /var/lib/mysql -type f -exec touch {} \; && \
+   service mysql start
+   
 service tor start
 
 torupdate
