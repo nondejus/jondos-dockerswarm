@@ -1,3 +1,12 @@
+## Note on github credentils:
+## Write the credentials in the form
+##   https://username:password@github.com
+## to a file called "github-credentials" in the container build context.
+## You can delete the file once the image is built
+##
+## There currently is no other secure way to
+## pass credentials to a docker build.
+
 FROM php:5-apache-jessie
 
 ENV DEBIAN_FRONTEND noninteractive
@@ -27,7 +36,16 @@ RUN apt-get update && apt-get install -y \
     deb.torproject.org-keyring \
     git \
     automake autoconf libtool \
-    build-essential libcurl4-openssl-dev zlib1g-dev 
+    build-essential libcurl4-openssl-dev zlib1g-dev
+
+RUN cpan install && cpan install Geo::IP
+
+COPY github-credentials /tmp/github-credentials
+
+RUN cd /var/www && \
+    git config --global credential.helper "store --file=/tmp/github-credentials" && \
+    git clone https://github.com/jondos/anontest.git && \
+    rm -f /tmp/github
 
 # install geoipupdate
 # there is no package for Jessie, need to compile it ourselves
@@ -36,7 +54,10 @@ RUN git clone https://github.com/maxmind/geoipupdate /tmp/geoipupdate && \
     cd && rm -rf /tmp/geoipupdate
 
 # install mysql
-RUN service mysql start && \
+# Workaround for docker filesystem issue https://github.com/docker/for-linux/issues/72
+RUN ln -sf /dev/stdout /var/log/mysql/error.log && \
+    find /var/lib/mysql -type f -exec touch {} \; && \
+    service mysql start && \
     /usr/bin/mysql -u root -e "CREATE DATABASE anontest; \
 CREATE TABLE anontest.sslsession (sessionid varchar(70) NOT NULL, zeit int(11) NOT NULL, \
 PRIMARY KEY (sessionid)) ENGINE=MyISAM DEFAULT CHARSET=latin1; \
@@ -46,7 +67,7 @@ GRANT ALL ON anontest.* TO 'anontest'@'localhost';" && \
 # ----------
 
 COPY docker-entrypoint.sh /
-COPY apache2/ipcheck.conf /etc/apache2/sites-enabled 
+COPY apache2/ipcheck.conf /etc/apache2/sites-enabled
 COPY /perl/aplog_anon.pl /bin/aplog_anon
 COPY java/InfoService.properties /etc/infoservice/InfoService.properties
 COPY certs /etc/infoservice/certs
@@ -72,9 +93,6 @@ RUN chmod -R a+x \
     /etc/cron.weekly \
     /docker-entrypoint.sh
 
-RUN cd /var/www && \
-    git clone https://github.com/jondos/anontest.git
-
 # Building InfoService fails because TU Dresden maven repo is defunct
 #
 #RUN cd /root && \
@@ -86,6 +104,7 @@ RUN cd /var/www && \
 #    rm -rf InfoService ~/.m2
 
 RUN /etc/cron.weekly/updategeoip
+RUN ln -s /usr/share/GeoIP /usr/local/share/GeoIP
 
 # clean up unneccesary packages
 RUN apt-get purge -y maven automake autoconf libtool git subversion && apt-get autoremove -y && apt-get clean
@@ -97,9 +116,7 @@ RUN cd /var/www/anontest/ftptest && javac testftpserver/FTPServer.java
 RUN useradd -d /var/lib/infoservice -U jondonym-infoservice && \
     useradd -M infoservice
 
-RUN a2enmod expires && a2enmod rewrite && apachectl configtest
-
-VOLUME /var/log/apache2
+RUN a2enmod expires && a2enmod rewrite && a2dissite 000-default && apachectl configtest
 
 WORKDIR /var/www/anontest
 
@@ -108,6 +125,3 @@ EXPOSE 80
 EXPOSE 443
 
 ENTRYPOINT [ "/docker-entrypoint.sh" ]
-
-
-
