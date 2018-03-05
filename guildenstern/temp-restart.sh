@@ -11,7 +11,7 @@ docker-compose down
 docker volume prune
 rm -rf /tmp/nginx-proxy
 docker stop mail
-docker-compose up -d nginx-proxy letsencrypt subversion jenkins
+docker-compose up -d nginx-proxy letsencrypt subversion jenkins icinga2
 
 # wait until the letsencrypt companion is finished setting up its config
 sleep 30s
