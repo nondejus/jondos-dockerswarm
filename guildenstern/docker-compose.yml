@@ -66,6 +66,8 @@ services:
         - VIRTUAL_HOST=monitor.jondos.de
         - LETSENCRYPT_HOST=monitor.jondos.de
         - LETSENCRYPT_EMAIL=oliver.meyer@jondos.de
+      ports:
+        - "78.129.167.102:5665:5665"
       volumes:
         - /root/icinga2files/etc/icinga2:/etc/icinga2
         - /root/icinga2files/etc/icingaweb2:/etc/icingaweb2
@@ -133,6 +135,7 @@ services:
 volumes:
   certs:
   html:
+  ipcheck-log:
 
 networks:
   noproxy:
