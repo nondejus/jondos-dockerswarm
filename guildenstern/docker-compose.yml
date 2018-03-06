@@ -59,7 +59,7 @@ services:
         - /root/svn-files/dav_svn:/etc/apache/dav_svn
 
     icinga2:
-      image: jordan/icinga2
+      build: ./icinga2-escalert
       hostname: monitor
       domainname: jondos.de
       environment:
@@ -73,7 +73,7 @@ services:
         - /root/icinga2files/etc/icingaweb2:/etc/icingaweb2
         - /root/icinga2files/var/lib/icinga2:/var/lib/icinga2
         - /root/icinga2files/var/lib/mysql:/var/lib/mysql
-      
+
     mail2:
       image: tvial/docker-mailserver:latest
       hostname: mail
