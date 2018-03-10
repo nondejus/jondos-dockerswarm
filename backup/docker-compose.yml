@@ -25,7 +25,7 @@ services:
         - certs:/etc/nginx/certs
         - conf.d:/etc/nginx/conf.d
         - /var/run/docker.sock:/var/run/docker.sock:ro
-        - ./vhost.d:/etc/nginx/vhost.d
+        - vhost.d:/etc/nginx/vhost.d
       depends_on:
         - nginx-proxy
 
