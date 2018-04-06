@@ -1,0 +1,6 @@
+#!/bin/bash
+echo "Create a user named 'backup' on the client system and add paste this content to ~backup/.ssh/authorized_keys:"
+echo
+echo command=\"sudo /usr/bin/rdiff-backup --server --restrict-read-only /\",from=\"$(hostname -f)\",no-port-forwarding,no-X11-forwarding,no-pty $(</root/.ssh/id_rsa.pub)
+
+echo

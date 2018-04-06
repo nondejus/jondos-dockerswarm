@@ -37,13 +37,10 @@ services:
         - VIRTUAL_PORT=8080
         - VIRTUAL_HOST=backup.anonymous-proxy-servers.net
         - LETSENCRYPT_HOST=backup.anonymous-proxy-servers.net
-      ports:
-        - "10022:22"
       volumes:
         - /root/Backup:/backups
         - /root/Restore:/restores
         - /root/rdiffweb_files/conf:/etc/rdiffweb
-        - /root/rdiffweb_files/keys:/home/backup/.ssh
 
 volumes:
   conf.d:

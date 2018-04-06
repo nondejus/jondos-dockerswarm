@@ -1,14 +1,8 @@
 FROM jshridha/rdiffweb
 
-# configure SSHD
-EXPOSE 22
-RUN sed -i s/".*PasswordAuthentication .*"/"PasswordAuthentication no"/ /etc/ssh/sshd_config && \
-    update-rc.d ssh defaults
-
-# Create remote backup user
-RUN adduser --shell /bin/false backup
-
 ADD *.sh /root/
 ADD *.conf /etc/supervisor/conf.d/
+ADD getkey /usr/local/bin
 
-VOLUME /home/backup/.ssh
+RUN mkdir -p /root/.ssh
+RUN echo "0 0 * * *   /root/rdiff-backup.sh" | crontab
