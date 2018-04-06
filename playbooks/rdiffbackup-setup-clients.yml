@@ -1,0 +1,44 @@
+#!/usr/bin/env ansible-playbook  -i ../inventory -K
+---
+- hosts: Backup
+  become: yes
+  become_user: root
+  become_method: sudo
+
+  tasks:
+  - name: update server config
+    git:
+      repo: 'https://github.com/jondos/jondos-dockerswarm'
+      dest: /root/jondos-dockerswarm
+
+  - name: fetch key from backup server
+    command: docker-compose exec rdiffweb getkey
+    args:
+      chdir: /root/jondos-dockerswarm
+    register: backupkey
+
+- hosts: jondos-backupclients
+  become: yes
+  become_user: root
+  become_method: sudo
+
+  tasks:
+  - name: create backup user
+    user:
+      name: backup
+      groups: sudo
+      append: true
+
+  - name: install required packages
+    apt: name={{item}} state=installed update_cache=yes
+    with_items:
+      - rdiffbackup
+
+  - name: fetch key from backup server
+    host:
+
+  - name: enable access from backup server
+    authorized_key:
+      state: present
+      user: backup
+      key: {{ backupkey }}

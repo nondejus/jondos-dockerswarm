@@ -1,0 +1,14 @@
+[jondos]
+Bitcoin ansible_host=81.7.10.238 ansible_port=22
+Güldenstern ansible_host=78.129.167.102
+Rosenkranz  ansible_host=35.158.68.69 ansible_port=22 ansible_ssh_private_key_file=.ssh/dietrich.pem
+Backup ansible_host backup.anonymous-proxy-servers.net ansible_port=22
+pi2.jondopay.de
+downloads.anonymous-proxy-servers.net
+
+[jondos:vars]
+ansible_user=root
+ansible_port=55022
+
+[jondos-backupclients]
+Güldenstern

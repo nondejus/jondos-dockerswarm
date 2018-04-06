@@ -47,4 +47,3 @@ volumes:
   certs:
   html:
   vhost.d:
-
