@@ -1,2 +1,2 @@
 #!/bin/bash
-echo command=\"sudo /usr/bin/rdiff-backup --server --restrict-read-only /\",from=\"$(hostname -f)\",no-port-forwarding,no-X11-forwarding,no-pty $(</root/.ssh/id_rsa.pub)
+echo command=\"sudo /usr/bin/rdiff-backup --server --restrict-read-only /\",no-port-forwarding,no-X11-forwarding,no-pty $(</root/.ssh/id_rsa.pub)
