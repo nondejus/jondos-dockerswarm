@@ -5,6 +5,7 @@ rosenkranz  ansible_user=ubuntu ansible_host=35.158.68.69 ansible_port=22 ansibl
 backup ansible_host=backup.anonymous-proxy-servers.net ansible_port=22
 pi2.jondopay.de
 downloads.anonymous-proxy-servers.net
+www ansible_host=www.anonymous-proxy-servers.net ansible_port=55022
 
 [jondos:vars]
 ansible_user=root
@@ -13,6 +14,7 @@ ansible_port=55022
 [jondos-backupclients]
 guildenstern
 rosenkranz
+www
 
 [jondos-containerhosts]
 guildenstern
