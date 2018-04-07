@@ -10,13 +10,13 @@
     shell: "docker exec backup_rdiffbackup_1 getkey > /tmp/backupkey"
 
   - name: fetch key from backup server, part 2
-    fetch: 
+    fetch:
       src: /tmp/backupkey
       dest: /tmp/backupkey
       flat: yes
- 
+
   - name: remove temp file
-    file: 
+    file:
       path: /tmp/backupkey
       state: absent
 
@@ -30,7 +30,17 @@
     user:
       name: backup
       groups: sudo
+      shell: /bin/sh
       append: true
+
+  - name: allow backup user execution of rdiff-backup
+    blockinfile:
+      create: true
+      path: /etc/sudoers.d/backup
+      insertafter: EOF
+      validate: '/usr/sbin/visudo -cf %s'
+      block: |
+        %sudo ALL = NOPASSWD: /usr/bin/rdiff-backup
 
   - name: install required packages
     apt: name={{item}} state=installed update_cache=yes
