@@ -1,0 +1,22 @@
+#!/usr/bin/env ansible-playbook  -i ../inventory -K
+---
+- hosts: jondos-containerhosts
+  become: yes
+  become_user: root
+  become_method: sudo
+
+  - name: update server config
+    git:
+      repo: 'https://github.com/jondos/jondos-dockerswarm'
+      dest: /root/jondos-dockerswarm
+
+  - name:            stop docker infrastructure if started
+    docker_service:
+        state:       absent
+        project_src: "/root/jondos-dockerswarm/{{ ansible_hostname }}"
+    ignore_errors:   yes
+
+  - name: start rest of docker services
+    docker_service:
+        state: present
+        project_src: "/root/jondos-dockerswarm/{{ ansible_hostname }}"

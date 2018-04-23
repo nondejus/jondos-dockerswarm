@@ -6,8 +6,8 @@ services:
       image: jwilder/nginx-proxy:alpine
       restart: always
       ports:
-        - "1080:80"
-        - "1443:443"
+        - "80:80"
+        - "443:443"
       labels:
         com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy: "true"
       volumes:
@@ -15,7 +15,7 @@ services:
         - certs:/etc/nginx/certs:ro
         - conf.d:/etc/nginx/conf.d
         - /var/run/docker.sock:/tmp/docker.sock:ro
-        - ./vhost.d:/etc/nginx/vhost.d
+        - vhost.d:/etc/nginx/vhost.d
 
     letsencrypt:
       image: jrcs/letsencrypt-nginx-proxy-companion
@@ -25,12 +25,12 @@ services:
         - certs:/etc/nginx/certs
         - conf.d:/etc/nginx/conf.d
         - /var/run/docker.sock:/var/run/docker.sock:ro
-        - ./vhost.d:/etc/nginx/vhost.d
+        - vhost.d:/etc/nginx/vhost.d
       depends_on:
         - nginx-proxy
 
-    rdiffweb:
-      image: jshridha/rdiffweb
+    rdiffbackup:
+      build: ./rdiffbackup
       hostname: backup
       domainname: anonymous-proxy-servers.net
       environment:
@@ -46,3 +46,4 @@ volumes:
   conf.d:
   certs:
   html:
+  vhost.d:
