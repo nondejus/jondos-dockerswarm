@@ -10,10 +10,11 @@ services:
           - REDMINE_DB_MYSQL=mysql
           - REDMINE_DB_PASSWORD=100%Jondos
           - REDMINE_DB_ENCODING=utf8
-          - REDMINE_DB_PASSWORD=100%Jondos
           - REDMINE_DB_DATABASE=redmine3
           - REDMINE_DB_USERNAME=redmine
           - REDMINE_NO_DB_MIGRATE=true
+          - LETSENCRYPT_EMAIL=oliver.meyer@jondos.de
+          - LETSENCRYPT_HOST=bugtracker.anonymous-proxy-servers.net
           - VIRTUAL_HOST=bugtracker.anonymous-proxy-servers.net
           - VIRTUAL_PORT=3000
         depends_on:
@@ -40,6 +41,8 @@ services:
         domainname: anonymous-proxy-servers.net
         environment:
           - VIRTUAL_HOST=timetracker.anonymous-proxy-servers.net
+          - LETSENCRYPT_EMAIL=oliver.meyer@jondos.de
+          - LETSENCRYPT_HOST=timetracker.anonymous-proxy-servers.net
 
     mysql:
         image: mysql/mysql-server
@@ -79,19 +82,23 @@ services:
       hostname: etherpad
       domainname: anonymous-proxy-servers.net
       environment:
+        - LETSENCRYPT_EMAIL=oliver.meyer@jondos.de
+        - LETSENCRYPT_HOST=timetracker.anonymous-proxy-servers.net
         - VIRTUAL_HOST=etherpad.anonymous-proxy-servers.net
         - VIRTUAL_PORT=9001
       depends_on:
         - mysql
 
     icinga2:
-      image: jordan/icinga2
-      ports:
-        - "5665:5665"
+      build: ./icinga2-escalert
       hostname: monitor
       domainname: anonymous-proxy-servers.net
       environment:
         - VIRTUAL_HOST=monitor.anonymous-proxy-servers.net
+        - LETSENCRYPT_HOST=monitor.anonymous-proxy-servers.net
+        - LETSENCRYPT_EMAIL=oliver.meyer@jondos.de
+      ports:
+        - "5665:5665"
       volumes:
         - /home/ubuntu/icinga2_files/conf:/etc/icinga2
         - /home/ubuntu/icinga2_files/db:/var/lib/mysql
