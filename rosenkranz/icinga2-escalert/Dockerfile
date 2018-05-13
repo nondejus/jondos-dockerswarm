@@ -1,6 +1,6 @@
 FROM jordan/icinga2
 
-RUN apt-get update && apt-get install -y cron && apt-get clean
+RUN apt-get update && apt-get install -y cron file && apt-get clean
 
 RUN cd /etc/icinga2/ && \
     curl -s -o - https://Escalert.io/static/downloads/escalert_icinga2.tgz | tar xz && \
