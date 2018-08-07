@@ -116,8 +116,6 @@ services:
       domainname: anonymous-proxy-servers.net
       environment:
         - VIRTUAL_HOST=shop.anonymous-proxy-servers.net
-        - LETSENCRYPT_HOST=shop.anonymous-proxy-servers.net
-        - LETSENCRYPT_EMAIL=oliver.meyer@jondos.de
       volumes:
         - /root/shop/db:/var/lib/mysql
       #ports:
@@ -132,9 +130,7 @@ services:
       ports:
         - "21:21"
       environment:
-        - VIRTUAL_HOST=ip-check.info,ipcheck.info,ip-check.org,sub.ip-check.info,what-is-my-ip-address.anonymous-proxy-servers.net,www.ip-check.info
-        - LETSENCRYPT_HOST=ip-check.info,ipcheck.info,ip-check.org,sub.ip-check.info,what-is-my-ip-address.anonymous-proxy-servers.net,www.ip-check.info
-        - LETSENCRYPT_EMAIL=oliver.meyer@jondos.de
+        - VIRTUAL_HOST=ip-check.info,ipcheck.info,ip-check.org
 
     db:
       image: mariadb
@@ -158,6 +154,17 @@ services:
          - VIRTUAL_HOST=cloud.jondos.de
          - LETSENCRYPT_HOST=cloud.jondos.de
          - LETSENCRYPT_EMAIL=oliver.meyer@jondos.de
+
+    certbot:
+       build: ./certbot
+       volumes:
+         /etc/letsencrypt:/etc/letsencrypt
+       ports:
+         "78.129.167.5:80"
+         "78.129.167.5:443"
+         "78.129.167.168:80"
+         "78.129.167.168:443"
+    
 
 volumes:
   certs:
