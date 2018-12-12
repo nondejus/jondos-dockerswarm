@@ -36,9 +36,9 @@
   - name: allow backup user execution of rdiff-backup
     blockinfile:
       create: true
-      path: /etc/sudoers.d/backup
-      insertafter: EOF
+      dest: /etc/sudoers.d/backup
       validate: '/usr/sbin/visudo -cf %s'
+      insertafter: EOF
       block: |
         %sudo ALL = NOPASSWD: /usr/bin/rdiff-backup
 
