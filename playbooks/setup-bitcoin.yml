@@ -1,0 +1,68 @@
+---
+- hosts: Bitcoin
+  become: yes
+  become_user: root
+  become_method: sudo
+
+  vars_prompt:
+    - name: "icinga2_ticket"
+      prompt: "Enter ticket for icinga2 client setup [leave empty if you are sure icinga2 is already set up]: "
+      default: ""
+
+  tasks:
+
+  - name: ensure icinga2 source is present
+    lineinfile:
+      path: /etc/apt/sources.list.d/icinga2.list
+      create: true
+      line: "deb-src http://packages.icinga.com/debian icinga-jessie main"
+
+  - name: ensure icinga2 is installed
+    apt:
+      name: icinga2
+      state: installed
+      update_cache: yes
+      register: icinga2_state
+
+  - name: setup icinga2 satellite
+    expect:
+      command: icinga2 node wizard
+      responses:
+        - y
+        - 81-7-10-238.blue.kundencontroller.de
+        - monitor.anonymous-proxy-servers.net
+        - y
+        - monitor.anonymous-proxy-servers.net
+        - 5665
+        - n
+        - y
+        - {{ icinga2_ticket }}
+        - 
+        - 
+        - y
+        - y
+        - 
+        - 
+        - n
+        - y
+    when: icinga2_state['changed'] is true
+
+  - name: Restart icinga2
+    command: service icinga2 restart
+
+  - name: Upload check script
+    copy:
+      src: bitcoin/check_bitcoin_nsca.sh
+      dest: /root/
+      mode: 700
+  
+  - name: setup crontab
+    cron:
+      name: "check bitcoind"
+      minute: '*/10'
+      job: "/root/check_bitcoin_nsca.sh"
+
+  - name: "Start bitcoind"
+    command: /usr/local/bin/bitcoind
+    become: yes
+    become_user: bitcoin
