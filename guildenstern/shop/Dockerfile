@@ -6,12 +6,15 @@ RUN apt-get update && \
     apt-get install -y \
     mysql-server \
     git \
-    tomcat8
+    tomcat8 \
+    postfix
 
 COPY apache2/shop.conf /etc/apache2/sites-available
 COPY perl/aplog_anon.pl /usr/local/bin
 COPY java/paysafecardclient.war /var/lib/tomcat8/webapps
 COPY tomcat/tomcat-users.xml /var/lib/tomcat8/conf
+COPY postfix/* /etc/postfix
+COPY aliases /etc
 
 RUN chmod a+x /usr/local/bin/aplog_anon.pl
 

@@ -116,6 +116,8 @@ services:
       domainname: anonymous-proxy-servers.net
       environment:
         - VIRTUAL_HOST=shop.anonymous-proxy-servers.net
+        - LETSENCRYPT_HOST=shop.anonymous-proxy-servers.net
+        - LETSENCRYPT_EMAIL=oliver.meyer@jondos.de
       volumes:
         - /root/shop/db:/var/lib/mysql
       #ports:
@@ -130,12 +132,38 @@ services:
       ports:
         - "21:21"
       environment:
-        - VIRTUAL_HOST=ip-check.info,ipcheck.info,ip-check.org
+        - VIRTUAL_HOST=ip-check.info,ipcheck.info,ip-check.org,sub.ip-check.info,what-is-my-ip-address.anonymous-proxy-servers.net,www.ip-check.info
+        - LETSENCRYPT_HOST=ip-check.info,ipcheck.info,ip-check.org,sub.ip-check.info,what-is-my-ip-address.anonymous-proxy-servers.net,www.ip-check.info
+        - LETSENCRYPT_EMAIL=oliver.meyer@jondos.de
+
+    db:
+      image: mariadb
+      restart: always
+      volumes:
+        - db:/var/lib/mysql
+      environment:
+        - MYSQL_ROOT_PASSWORD=100%Jondos
+        - MYSQL_PASSWORD=100%Jondos
+        - MYSQL_DATABASE=nextcloud
+        - MYSQL_USER=nextcloud
+
+    nextcloud:
+       image: nextcloud
+       links:
+         - db
+       volumes:
+         - /root/nextcloud_files:/var/www/html
+       restart: always
+       environment:
+         - VIRTUAL_HOST=cloud.jondos.de
+         - LETSENCRYPT_HOST=cloud.jondos.de
+         - LETSENCRYPT_EMAIL=oliver.meyer@jondos.de
 
 volumes:
   certs:
   html:
   ipcheck-log:
+  db:
 
 networks:
   noproxy:
