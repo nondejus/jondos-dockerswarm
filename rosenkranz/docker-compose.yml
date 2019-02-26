@@ -54,8 +54,8 @@ services:
       image: jwilder/nginx-proxy:alpine
       restart: always
       ports:
-        - "80:80"
-        - "443:443"
+        - "78.129.167.163:80:80"
+        - "78.129.167.163:443:443"
       labels:
         com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy: "true"
       volumes:
@@ -98,7 +98,7 @@ services:
         - LETSENCRYPT_HOST=monitor.anonymous-proxy-servers.net
         - LETSENCRYPT_EMAIL=oliver.meyer@jondos.de
       ports:
-        - "5665:5665"
+        - "78.129.167.163:5665:5665"
       volumes:
         - /home/ubuntu/icinga2_files/conf:/etc/icinga2
         - /home/ubuntu/icinga2_files/db:/var/lib/mysql
