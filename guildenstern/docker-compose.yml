@@ -106,6 +106,8 @@ services:
         - ENABLE_SASLAUTHD=0
         - SSL_TYPE=letsencrypt
         - ENABLE_POP3=1
+        - POSTGREY_AUTO_WHITELIST_CLIENTS=3
+        - POSTGREY_DELAY=300
       cap_add:
         - NET_ADMIN
         - SYS_PTRACE
