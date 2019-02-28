@@ -20,16 +20,15 @@ services:
         depends_on:
           - mysql
         volumes:
-          - /home/ubuntu/redmine_files/upload:/usr/src/redmine/files
-          - /home/ubuntu/redmine_files/configuration.yml:/usr/src/redmine/config/configuration.yml
-        restart: always
+          - /root/redmine_files/upload:/usr/src/redmine/files
+          - /root/redmine_files/configuration.yml:/usr/src/redmine/config/configuration.yml
 
     portainer:
         image: portainer/portainer
         volumes:
           - /var/run/docker.sock:/var/run/docker.sock
           - ./portainer:/endpoints
-          - /home/ubuntu/portainer_files/data:/data
+          - /root/portainer_files/data:/data
         command: --external-endpoints /endpoints/endpoints.json --logo "https://anonymous-proxy-servers.net/images/jondo220.png"
 
     kimai:
@@ -47,8 +46,13 @@ services:
     mysql:
         image: mysql/mysql-server
         restart: always
+        environment:
+          - MYSQL_ROOT_PASSWORD=100%Jondos
+          - MYSQL_PASSWORD=100%Jondos
+          - MYSQL_DATABASE=redmine3
+          - MYSQL_USER=redmine
         volumes:
-          - /home/ubuntu/mysql:/var/lib/mysql
+          - /root/mysql_rosenkranz:/var/lib/mysql
 
     nginx-proxy:
       image: jwilder/nginx-proxy:alpine
@@ -100,9 +104,9 @@ services:
       ports:
         - "78.129.167.163:5665:5665"
       volumes:
-        - /home/ubuntu/icinga2_files/conf:/etc/icinga2
-        - /home/ubuntu/icinga2_files/db:/var/lib/mysql
-        - /home/ubuntu/icinga2_files/icinga2 to /var/lib/icinga2
+        - /root/icinga2_rosenkranz_files/conf:/etc/icinga2
+        - /root/icinga2_rosenkranz_files/db:/var/lib/mysql
+        - /root/icinga2_rosenkranz_files/icinga2 to /var/lib/icinga2
 
 volumes:
   conf.d:
