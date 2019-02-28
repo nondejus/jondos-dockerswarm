@@ -7,11 +7,17 @@ services:
       ports:
         - "78.129.167.102:80:80"
         - "78.129.167.102:443:443"
+        - "78.129.167.163:80:80"
+        - "78.129.167.163:443:443"
       depends_on:
         - jenkins
         - subversion
         - icinga2
+        - icinga2-apsn
         - mail2
+        - portainer
+        - kimai
+        - redmine        
       labels:
         com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy: "true"
       volumes:
@@ -161,11 +167,87 @@ services:
          - LETSENCRYPT_HOST=cloud.jondos.de
          - LETSENCRYPT_EMAIL=oliver.meyer@jondos.de
 
+    redmine:
+        image: rosenkranz_redmine:latest
+        hostname: bugtracker
+        domainname: anonymous-proxy-servers.net
+        environment:
+          - REDMINE_DB_MYSQL=mysql
+          - REDMINE_DB_PASSWORD=100%Jondos
+          - REDMINE_DB_ENCODING=utf8
+          - REDMINE_DB_DATABASE=redmine3
+          - REDMINE_DB_USERNAME=redmine
+          - REDMINE_NO_DB_MIGRATE=true
+          - LETSENCRYPT_EMAIL=oliver.meyer@jondos.de
+          - LETSENCRYPT_HOST=bugtracker.anonymous-proxy-servers.net
+          - VIRTUAL_HOST=bugtracker.anonymous-proxy-servers.net
+          - VIRTUAL_PORT=3000
+        depends_on:
+          - mysql
+        volumes:
+          - /root/redmine_files/upload:/usr/src/redmine/files
+          - /root/redmine_files/configuration.yml:/usr/src/redmine/config/configuration.yml
+
+    portainer:
+        image: portainer/portainer
+        volumes:
+          - /var/run/docker.sock:/var/run/docker.sock
+          - ./portainer:/endpoints
+          - /root/portainer_files/data:/data
+        command: --external-endpoints /endpoints/endpoints.json --logo "https://anonymous-proxy-servers.net/images/jondo220.png"
+
+    kimai:
+        build: ./kimai
+        depends_on:
+          - mysql
+        restart: always
+        hostname: timetracker
+        domainname: anonymous-proxy-servers.net
+        environment:
+          - VIRTUAL_HOST=timetracker.anonymous-proxy-servers.net
+          - LETSENCRYPT_EMAIL=oliver.meyer@jondos.de
+          - LETSENCRYPT_HOST=timetracker.anonymous-proxy-servers.net
+
+    etherpad-docker:
+      build: ./etherpad-docker
+      hostname: etherpad
+      domainname: anonymous-proxy-servers.net
+      environment:
+        - LETSENCRYPT_EMAIL=oliver.meyer@jondos.de
+        - LETSENCRYPT_HOST=timetracker.anonymous-proxy-servers.net
+        - VIRTUAL_HOST=etherpad.anonymous-proxy-servers.net
+        - VIRTUAL_PORT=9001
+      depends_on:
+        - mysql
+
+    mysql:
+        image: mysql/mysql-server
+        restart: always
+        environment:
+          - MYSQL_ROOT_PASSWORD=100%Jondos
+          - MYSQL_PASSWORD=100%Jondos
+          - MYSQL_DATABASE=redmine3
+          - MYSQL_USER=redmine
+        volumes:
+          - /root/mysql_rosenkranz:/var/lib/mysql
+
+    icinga2-apsn:
+      build: ./icinga2-escalert
+      hostname: monitor
+      domainname: anonymous-proxy-servers.net
+      environment:
+        - VIRTUAL_HOST=monitor.anonymous-proxy-servers.net
+        - LETSENCRYPT_HOST=monitor.anonymous-proxy-servers.net
+        - LETSENCRYPT_EMAIL=oliver.meyer@jondos.de
+      ports:
+        - "78.129.167.163:5665:5665"
+      volumes:
+        - /root/icinga2_rosenkranz_files/conf:/etc/icinga2
+        - /root/icinga2_rosenkranz_files/db:/var/lib/mysql
+        - /root/icinga2_rosenkranz_files/icinga2 to /var/lib/icinga2
+
 volumes:
   certs:
   html:
   ipcheck-log:
   db:
-
-networks:
-  noproxy:
