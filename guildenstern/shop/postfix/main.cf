@@ -17,9 +17,15 @@ append_dot_mydomain = no
 
 readme_directory = no
 
+# See http://www.postfix.org/COMPATIBILITY_README.html -- default to 2 on
+# fresh installs.
+compatibility_level = 2
+
+
+
 # TLS parameters
-smtpd_tls_cert_file = /etc/letsencrypt/live/shop.anonymous-proxy-servers.net/cert.pem
-smtpd_tls_key_file = /etc/letsencrypt/live/shop.anonymous-proxy-servers.net/privkey.pem
+smtpd_tls_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem
+smtpd_tls_key_file=/etc/ssl/private/ssl-cert-snakeoil.key
 smtpd_use_tls=yes
 smtpd_tls_session_cache_database = btree:${data_directory}/smtpd_scache
 smtp_tls_session_cache_database = btree:${data_directory}/smtp_scache
@@ -27,21 +33,26 @@ smtp_tls_session_cache_database = btree:${data_directory}/smtp_scache
 # See /usr/share/doc/postfix/TLS_README.gz in the postfix-doc package for
 # information on enabling SSL in the smtp client.
 
+smtpd_relay_restrictions = permit_mynetworks permit_sasl_authenticated defer_unauth_destination
 myhostname = shop.anonymous-proxy-servers.net
 alias_maps = hash:/etc/aliases
 alias_database = hash:/etc/aliases
 myorigin = /etc/mailname
-mydestination = $myhostname,localhost.$mydomain
-relayhost = mail.jondos.de
+mydestination = $myhostname, shop.anonymous-proxy-servers.net, localhost.anonymous-proxy-servers.net, , localhost
+relayhost = [mail.jondos.de]
 mynetworks = 127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128
 mailbox_size_limit = 0
 recipient_delimiter = +
-inet_interfaces = loopback-only
-smtp_tls_security_level = encrypt
-smtpd_tls_security_level = may
-smtp_sasl_password_maps = hash:/etc/postfix/relay_password
+inet_interfaces = all
+inet_protocols = all
+
+# enable SASL authentication
 smtp_sasl_auth_enable = yes
+# disallow methods that allow anonymous authentication.
 smtp_sasl_security_options = noanonymous
-mydomain = anonymous-proxy-servers.net
-smtp_sasl_mechanism_filter = plain
-sender_canonical_maps = hash:/etc/postfix/sender_canonical
+# where to find sasl_passwd
+smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd
+# Enable STARTTLS encryption
+smtp_use_tls = yes
+# where to find CA certificates
+smtp_tls_CAfile = /etc/ssl/certs/ca-certificates.crt

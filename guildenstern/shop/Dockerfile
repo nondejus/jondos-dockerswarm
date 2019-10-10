@@ -6,6 +6,7 @@ ENV TOMCAT_VERSION=9.0.24
 
 ARG GIT_USER
 ARG GIT_PASSWORD
+ARG MAIL_PASSWORD
 
 RUN mkdir -p /usr/share/man/man1
 
@@ -21,7 +22,17 @@ RUN apt-get update && \
     apt-transport-https ca-certificates dirmngr gnupg software-properties-common 
 
 # Install PERL dependencies
-RUN cpan install CGI::EncryptForm XML::Bare LWP::Simple JSON::RPC::Client Email::Valid
+RUN apt-get install -y \
+	libgnupg-interface-perl \
+	libmail-gnupg-perl \
+	libxml-bare-perl \
+	libjson-rpc-perl \
+	libemail-address-perl \
+	libmail-sendeasy-perl \
+	libemail-valid-perl
+
+# Install more PERL dependencies
+RUN cpan install CGI::EncryptForm LWP::Simple
 
 # Install old Java
 RUN wget -qO - https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public | apt-key add - && \
@@ -42,9 +53,11 @@ COPY apache2/shop.conf /tmp/shop.conf
 COPY perl/aplog_anon.pl /usr/local/bin/
 COPY java/paysafecardclient.war /opt/tomcat9/webapps/
 COPY tomcat/tomcat-users.xml /opt/tomcat9/conf/
-COPY postfix/* /etc/postfix/
+COPY postfix/main.cf /etc/postfix/main.cf
 COPY aliases /etc/
 COPY docker-entrypoint.sh /
+
+RUN echo [mail.jondos.de] payment@jondos.de:${MAIL_PASSWORD} > /etc/postfix/sasl_passwd
 
 RUN chmod a+x /usr/local/bin/aplog_anon.pl
 
@@ -54,6 +67,7 @@ RUN mv -f /tmp/httpd.conf /usr/local/apache2/conf
 RUN rm -rf /opt/tomcat9/webapps/manager
 
 VOLUME /var/lib/mysql
+VOLUME /etc/letsencrypt/live
 
 RUN git clone https://${GIT_USER}:${GIT_PASSWORD}@github.com/jondos/jondos-shop /var/www/shop && \
     chown -R daemon /var/www/shop
