@@ -31,8 +31,9 @@ RUN apt-get install -y \
 	libmail-sendeasy-perl \
 	libemail-valid-perl
 
-# Install more PERL dependencies
-RUN cpan install CGI::EncryptForm LWP::Simple
+# Install more PERL dependencies 
+# JSON::RPC::Client is deprecated so it's no longer provided by libjson-rpc-perl
+RUN cpan install CGI::EncryptForm LWP::Simple JSON::RPC::Client
 
 # Install old Java
 RUN wget -qO - https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public | apt-key add - && \
