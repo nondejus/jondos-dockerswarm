@@ -52,11 +52,11 @@ RUN wget https://www-us.apache.org/dist/tomcat/tomcat-9/v${TOMCAT_VERSION}/bin/a
 
 COPY apache2/shop.conf /tmp/shop.conf
 COPY perl/aplog_anon.pl /usr/local/bin/
-COPY java/paysafecardclient.war /opt/tomcat9/webapps/
 COPY tomcat/tomcat-users.xml /opt/tomcat9/conf/
 COPY postfix/main.cf /etc/postfix/main.cf
 COPY aliases /etc/
 COPY docker-entrypoint.sh /
+ADD https://www.jondos.de/downloads/paysafecardclient/paysafecardclient.war /opt/tomcat9/webapps/
 
 RUN echo [mail.jondos.de] payment@jondos.de:${MAIL_PASSWORD} > /etc/postfix/sasl_passwd
 
