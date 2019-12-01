@@ -31,8 +31,9 @@ RUN apt-get install -y \
 	libmail-sendeasy-perl \
 	libemail-valid-perl
 
-# Install more PERL dependencies
-RUN cpan install CGI::EncryptForm LWP::Simple
+# Install more PERL dependencies 
+# JSON::RPC::Client is deprecated so it's no longer provided by libjson-rpc-perl
+RUN cpan install CGI::EncryptForm LWP::Simple JSON::RPC::Client
 
 # Install old Java
 RUN wget -qO - https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public | apt-key add - && \
@@ -51,11 +52,11 @@ RUN wget https://www-us.apache.org/dist/tomcat/tomcat-9/v${TOMCAT_VERSION}/bin/a
 
 COPY apache2/shop.conf /tmp/shop.conf
 COPY perl/aplog_anon.pl /usr/local/bin/
-COPY java/paysafecardclient.war /opt/tomcat9/webapps/
 COPY tomcat/tomcat-users.xml /opt/tomcat9/conf/
 COPY postfix/main.cf /etc/postfix/main.cf
 COPY aliases /etc/
 COPY docker-entrypoint.sh /
+ADD https://www.jondos.de/downloads/paysafecardclient/paysafecardclient.war /opt/tomcat9/webapps/
 
 RUN echo [mail.jondos.de] payment@jondos.de:${MAIL_PASSWORD} > /etc/postfix/sasl_passwd
 
