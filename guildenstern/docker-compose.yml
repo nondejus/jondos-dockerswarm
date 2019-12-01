@@ -9,6 +9,10 @@ services:
         - "78.129.167.102:443:443"
         - "78.129.167.163:80:80"
         - "78.129.167.163:443:443"
+#        - "78.129.167.165:80:80"
+#        - "78.129.167.165:443:443"
+#        - "78.129.167.168:80:80"
+#        - "78.129.167.168:443:443"
       depends_on:
         - jenkins
         - subversion
@@ -138,11 +142,15 @@ services:
       volumes:
         - ipcheck-log:/var/log/apache2
       ports:
+        - "78.129.167.165:80:80"
+        - "78.129.167.165:443:443"
+        - "78.129.167.168:80:80"
+        - "78.129.167.168:443:443"
         - "21:21"
-      environment:
-        - VIRTUAL_HOST=ip-check.info,ipcheck.info,ip-check.org,sub.ip-check.info,what-is-my-ip-address.anonymous-proxy-servers.net,www.ip-check.info
-        - LETSENCRYPT_HOST=ip-check.info,ipcheck.info,ip-check.org,sub.ip-check.info,what-is-my-ip-address.anonymous-proxy-servers.net,www.ip-check.info
-        - LETSENCRYPT_EMAIL=oliver.meyer@jondos.de
+#      environment:
+#        - VIRTUAL_HOST=ip-check.info,ipcheck.info,ip-check.org,sub.ip-check.info,what-is-my-ip-address.anonymous-proxy-servers.net,www.ip-check.info
+#        - LETSENCRYPT_HOST=ip-check.info,ipcheck.info,ip-check.org,sub.ip-check.info,what-is-my-ip-address.anonymous-proxy-servers.net,www.ip-check.info
+#        - LETSENCRYPT_EMAIL=oliver.meyer@jondos.de
 
     db:
       image: mariadb

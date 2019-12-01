@@ -2,7 +2,7 @@ FROM httpd:latest
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV JAVA_HOME=/usr/lib/jvm/adoptopenjdk-8-hotspot-amd64
-ENV TOMCAT_VERSION=9.0.24
+ENV TOMCAT_VERSION=9.0.29
 
 ARG GIT_USER
 ARG GIT_PASSWORD

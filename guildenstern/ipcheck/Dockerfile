@@ -49,15 +49,17 @@ RUN cd /var/www && \
 
 # install geoipupdate
 # there is no package for Jessie, need to compile it ourselves
-RUN git clone https://github.com/maxmind/geoipupdate /tmp/geoipupdate && \
-    cd /tmp/geoipupdate && ./bootstrap && ./configure --prefix=/usr --sysconfdir=/etc && make && make install && \
-    cd && rm -rf /tmp/geoipupdate
+RUN wget https://github.com/maxmind/geoipupdate/releases/download/v4.1.5/geoipupdate_4.1.5_linux_amd64.tar.gz && \
+    tar xzvf geoipupdate_4.1.5_linux_amd64.tar.gz && \
+    cp geoipupdate_4.1.5_linux_amd64/geoipupdate /usr/bin && \
+    rm -rf geoipupdate_4.1.5_linux_amd64*
 
 # install mysql
 # Workaround for docker filesystem issue https://github.com/docker/for-linux/issues/72
 RUN ln -sf /dev/stdout /var/log/mysql/error.log && \
     find /var/lib/mysql -type f -exec touch {} \; && \
     service mysql start && \
+    sleep 10 && \
     /usr/bin/mysql -u root -e "CREATE DATABASE anontest; \
 CREATE TABLE anontest.sslsession (sessionid varchar(70) NOT NULL, zeit int(11) NOT NULL, \
 PRIMARY KEY (sessionid)) ENGINE=MyISAM DEFAULT CHARSET=latin1; \
@@ -66,8 +68,15 @@ GRANT ALL ON anontest.* TO 'anontest'@'localhost';" && \
     service mysql stop
 # ----------
 
+# install certbot
+RUN wget https://dl.eff.org/certbot-auto && \
+    sudo mv certbot-auto /usr/local/bin/certbot-auto && \
+    sudo chown root /usr/local/bin/certbot-auto && \
+    sudo chmod 0755 /usr/local/bin/certbot-auto
+
 COPY docker-entrypoint.sh /
 COPY apache2/ipcheck.conf /etc/apache2/sites-enabled
+COPY apache2/ip-check.conf /etc/apache2/sites-enabled
 COPY /perl/aplog_anon.pl /bin/aplog_anon
 COPY java/InfoService.properties /etc/infoservice/InfoService.properties
 COPY certs /etc/infoservice/certs
@@ -78,12 +87,13 @@ COPY /perl/rssfeedupdater /usr/local/bin
 COPY tor/torupdate /usr/local/bin
 COPY ftp /home
 COPY cron.weekly /etc/cron.weekly
-COPY geoip/GeoIP.conf /etc/GeoIP.conf
+
 COPY tor/torrc /etc/tor/torrc
 COPY tor/torsocks.conf /etc/tor/torsocks.conf
 COPY tor/tor-service-defaults-torrc /usr/share/tor/tor-service-defaults-torrc
+COPY crontab /tmp/crontab
 
-RUN echo "10 * * * * /usr/local/bin/torupdate" | crontab
+RUN cat /tmp/crontab | crontab
 
 RUN chmod -R a+x \
     /bin/aplog_anon \
@@ -103,7 +113,8 @@ RUN chmod -R a+x \
 #    cd .. && \
 #    rm -rf InfoService ~/.m2
 
-RUN /etc/cron.weekly/updategeoip
+#GeoIP is discontinued, need to migrate to GeoIP2
+#RUN /etc/cron.weekly/updategeoip
 RUN ln -s /usr/share/GeoIP /usr/local/share/GeoIP
 
 # clean up unneccesary packages
@@ -117,6 +128,12 @@ RUN useradd -d /var/lib/infoservice -U jondonym-infoservice && \
     useradd -M infoservice
 
 RUN a2enmod expires && a2enmod rewrite && a2dissite 000-default && apachectl configtest
+
+COPY geoip/GeoIP.conf      /etc/GeoIP.conf
+COPY geoip/GeoIP.dat       /var/www/anontest/geoip/GeoIP.dat
+COPY geoip/GeoIPISP.dat    /var/www/anontest/geoip/GeoIPISP.dat
+COPY geoip/GeoIPOrg.dat    /var/www/anontest/geoip/GeoIPOrg.dat
+COPY geoip/GeoLiteCity.dat /var/www/anontest/geoip/GeoLiteCity.dat
 
 WORKDIR /var/www/anontest
 
