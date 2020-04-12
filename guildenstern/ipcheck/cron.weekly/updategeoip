@@ -1,12 +1,12 @@
 #!/bin/bash
 
-wget https://geolite.maxmind.com/download/geoip/database/GeoLite2-Country.tar.gz -O - | \
+wget https://mirrors-cdn.liferay.com/geolite.maxmind.com/download/geoip/database/GeoIP.dat.gz -O - | \
   gunzip > /usr/share/GeoIP/GeoIP.dat.new && \
   mv -f /usr/share/GeoIP/GeoIP.dat.new /usr/share/GeoIP/GeoIP.dat && \
   cp -f /usr/share/GeoIP/GeoIP.dat /var/www/anontest/geoip
 
-wget https://geolite.maxmind.com/download/geoip/database/GeoLite2-City.tar.gz -O - | \
-  gunzip > /usr/share/GeoIP/GeoLiteCity.dat.new && \
+wget https://mirrors-cdn.liferay.com/geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.xz -O - | \
+  unxz - > /usr/share/GeoIP/GeoLiteCity.dat.new && \
   mv -f  /usr/share/GeoIP/GeoLiteCity.dat.new /usr/share/GeoIP/GeoLiteCity.dat && \
   cp -f /usr/share/GeoIP/GeoLiteCity.dat /var/www/anontest/geoip
 

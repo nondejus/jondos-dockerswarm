@@ -87,7 +87,9 @@ COPY /perl/rssfeedupdater /usr/local/bin
 COPY tor/torupdate /usr/local/bin
 COPY ftp /home
 COPY cron.weekly /etc/cron.weekly
-
+COPY geoip/GeoIP.conf /etc/GeoIP.conf
+COPY geoip/GeoIPOrg.dat /var/www/anontest/geoip/GeoIPOrg.dat
+COPY geoip/GeoIPISP.dat /var/www/anontest/geoip/GeoIPISP.dat
 COPY tor/torrc /etc/tor/torrc
 COPY tor/torsocks.conf /etc/tor/torsocks.conf
 COPY tor/tor-service-defaults-torrc /usr/share/tor/tor-service-defaults-torrc
@@ -114,8 +116,9 @@ RUN chmod -R a+x \
 #    rm -rf InfoService ~/.m2
 
 #GeoIP is discontinued, need to migrate to GeoIP2
-#RUN /etc/cron.weekly/updategeoip
-RUN ln -s /usr/share/GeoIP /usr/local/share/GeoIP
+#RUN /etc/cron.weekly/updategeoipRUN /etc/cron.weekly/updategeoip
+RUN ln -s /usr/share/GeoIP /usr/local/share/GeoIP && \
+    ln -s /etc/GeoIP.conf /usr/local/etc/
 
 # clean up unneccesary packages
 RUN apt-get purge -y maven automake autoconf libtool git subversion && apt-get autoremove -y && apt-get clean
